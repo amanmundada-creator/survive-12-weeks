@@ -115,7 +115,10 @@ const DENIED = `<!doctype html><meta name="viewport" content="width=device-width
 <p><b>Running online on Render?</b> Open your service on dashboard.render.com → <b>Environment</b> → copy the value of <b>HOST_TOKEN</b>, then add <code>?token=</code> and that value to this address.</p>
 <p><b>Running on your laptop?</b> Use the host link printed in the terminal.</p>
 <p>Joining as a player? Go to the <a href="/">join page</a> instead.</p></div>`;
-const hostOnly = (req, res, next) => (req.query.token === HOST_TOKEN ? next() : res.status(403).send(DENIED.replace('__ADDR__', req.protocol + '://' + (req.headers['x-forwarded-host'] || req.headers.host))));
+// Render's generated tokens can contain + / = ; in a web address a "+" arrives
+// as a space, so treat spaces as "+" before comparing.
+const tokenOk = (t) => typeof t === 'string' && t.replace(/ /g, '+') === HOST_TOKEN;
+const hostOnly = (req, res, next) => (tokenOk(req.query.token) ? next() : res.status(403).send(DENIED.replace('__ADDR__', req.protocol + '://' + (req.headers['x-forwarded-host'] || req.headers.host))));
 app.get('/', page('vote.html'));
 app.get('/vote', page('vote.html'));
 app.get('/host', hostOnly, page('host.html'));
@@ -139,7 +142,7 @@ wss.on('connection', (ws, req) => {
     try { m = JSON.parse(raw); } catch { return; }
     if (!m || typeof m.t !== 'string') return;
     if (m.t === 'host') {
-      if (m.token !== HOST_TOKEN) { ws.send(JSON.stringify({ t: 'denied' })); return ws.close(); }
+      if (!tokenOk(m.token)) { ws.send(JSON.stringify({ t: 'denied' })); return ws.close(); }
       ws.isHost = true;
       sockets.hosts.add(ws);
       return scheduleBroadcast({ light: false });
