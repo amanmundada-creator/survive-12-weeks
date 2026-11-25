@@ -56,7 +56,7 @@ npm run tunnel
 | **P** | Pause / resume the timer |
 | **+** | Add 15 seconds to the current question/decision |
 | **C** | Add 1 minute to the game clock |
-| **K** | Players panel: search anyone and **remove** them (click Remove twice). In the lobby you can also click the × on a name. Removed phones can't rejoin until you start a new game. |
+| **K** | **Remove chefs**: search anyone and remove them (click Remove twice). In the lobby you can also click the × on a name. Removed phones can't rejoin until you start a new game. |
 | **N** | Show/hide presenter notes (only on your screen, a talking point for each step) |
 | **M** | Mute sounds |
 | **F** | Fullscreen |

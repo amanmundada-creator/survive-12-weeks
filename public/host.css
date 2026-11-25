@@ -85,13 +85,13 @@ h1, h2, h3 { margin: 0; }
 .start-btn { margin-top: 14px; justify-self: start; background: var(--orange); color: #fff; border: none; border-radius: 18px; padding: 22px 44px; font-size: 32px; font-weight: 900; box-shadow: 0 6px 0 #a63c05; }
 .start-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #a63c05; }
 .start-btn kbd { font: inherit; font-size: 20px; opacity: 0.85; margin-left: 10px; }
-.join { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 34px; }
-.join .qr { width: 520px; height: 520px; border-radius: 18px; overflow: hidden; border: 3px solid var(--ink); }
+.join { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 26px 34px; }
+.join .qr { width: 450px; height: 450px; border-radius: 18px; overflow: hidden; border: 3px solid var(--ink); }
 .join .qr svg { width: 100%; height: 100%; display: block; }
 .join-h { font-size: 34px; font-weight: 900; margin-bottom: 16px; }
 .join-url { font-size: 34px; font-weight: 900; color: var(--orange); margin-top: 18px; letter-spacing: 0.01em; }
 .join-n { margin-top: 18px; }
-.nick-cloud { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-height: 110px; overflow: hidden; }
+.nick-cloud { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-height: 82px; overflow: hidden; }
 .nick-cloud span { font-size: 17px; font-weight: 700; background: var(--cream-2); padding: 4px 12px; border-radius: 999px; animation: pop 0.4s ease-out; }
 @keyframes pop { from { transform: scale(0.6); opacity: 0; } }
 
@@ -396,7 +396,8 @@ h1, h2, h3 { margin: 0; }
 .pp-kick { border: 2px solid var(--red); color: var(--red); background: transparent; border-radius: 10px; padding: 6px 12px; font-size: 16px; font-weight: 800; }
 .pp-kick.sure { background: var(--red); color: #fff; }
 .nick-cloud span { display: inline-flex; align-items: center; gap: 6px; }
-.chip-x { border: none; background: transparent; color: var(--muted); font-size: 18px; font-weight: 900; line-height: 1; padding: 0 2px; cursor: pointer; }
+.chip-x { border: none; background: var(--red-soft); color: var(--red); width: 22px; height: 22px; border-radius: 50%; font-size: 16px; font-weight: 900; line-height: 22px; padding: 0; cursor: pointer; }
+.chip-x:hover { background: var(--red); color: #fff; }
 .chip-x:hover { color: var(--red); }
 
 /* ── briefing ── */
@@ -412,3 +413,7 @@ h1, h2, h3 { margin: 0; }
 .ic h3 { font-size: 32px; font-weight: 900; margin-bottom: 8px; }
 .ic p { font-size: 27px; line-height: 1.38; font-weight: 600; margin: 0; color: var(--ink-2); }
 .ic p b { color: var(--ink); }
+
+.manage-btn { margin-top: 14px; border: 2px solid var(--red); color: var(--red); background: var(--paper); border-radius: 14px; padding: 10px 20px; font-size: 20px; font-weight: 900; }
+.manage-btn:hover { background: var(--red); color: #fff; }
+#players-btn { border-color: var(--ink); }

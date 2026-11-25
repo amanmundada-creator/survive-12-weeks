@@ -98,7 +98,7 @@
     list.dataset.k = key;
     list.innerHTML = ps.length ? ps.map((p) => `<div class="pp-row"><span class="pp-dot ${p.connected ? 'on' : ''}" title="${p.connected ? 'online' : 'offline'}"></span><span class="pp-nick">${esc(p.nick)}${p.closed ? ' <small>closed</small>' : ''}</span><span class="pp-score">${view.phase === 'setup' ? '' : inrShort(p.score)}</span><button class="pp-kick ${pendingKick === p.id ? 'sure' : ''}" data-id="${esc(p.id)}" data-nick="${esc(p.nick)}">${pendingKick === p.id ? 'Click again to remove' : 'Remove'}</button></div>`).join('') : '<p class="pp-sub">Nobody matches.</p>';
     list.querySelectorAll('.pp-kick').forEach((b) => (b.onclick = () => kick(b.dataset.id, b.dataset.nick)));
-    $('#players-btn').textContent = `👥 Players (${(view.players || []).length})`;
+    $('#players-btn').textContent = `👥 Manage chefs (${(view.players || []).length})`;
   }
   $('#players-btn').onclick = () => togglePlayers();
   $('#pp-close').onclick = () => togglePlayers(false);
@@ -180,7 +180,7 @@
     if (!soundUnlocked && view.sound) $('#sound-hint').textContent = '🔈 Click or press any key once to enable sound';
     renderMain(false);
     renderPlayers();
-    $('#players-btn').textContent = `👥 Players (${(view.players || []).length})`;
+    $('#players-btn').textContent = `👥 Manage chefs (${(view.players || []).length})`;
   }
 
   function onPhaseChange(to) {
@@ -210,7 +210,7 @@
     document.querySelectorAll('[data-live=count]').forEach((el) => (el.innerHTML = `${num(v.counts.done)} <small>/ ${num(v.counts.total)} ${v.counts.label}</small>`));
     if (v.phase === 'setup') {
       const n = $('#join-n');
-      if (n) n.innerHTML = `${num(v.counts.players)} <small>${v.counts.players === 1 ? 'kitchen has' : 'kitchens have'} joined</small>`;
+      if (n) n.innerHTML = `${num(v.counts.players)} <small>${v.counts.players === 1 ? 'chef has' : 'chefs have'} joined</small>`;
       const qr = $('#join-qr');
       if (qr && join && qr.dataset.url !== join.url) { qr.dataset.url = join.url; qr.innerHTML = join.qr; $('#join-url').textContent = join.url.replace(/^https?:\/\//, ''); }
       document.querySelectorAll('.seg [data-min]').forEach((b) => b.classList.toggle('on', Number(b.dataset.min) === v.minutes));
@@ -255,6 +255,7 @@
           <div class="join-url" id="join-url"></div>
           <div class="count join-n" id="join-n"></div>
           <div class="nick-cloud" id="nicks"></div>
+          <button class="manage-btn" id="manage-btn">✕ Remove chefs…</button>
         </div>
       </div>`;
     main.querySelectorAll('[data-min]').forEach((b) => (b.onclick = () => cmd('settings', { settings: { minutes: Number(b.dataset.min) } })));
@@ -262,6 +263,7 @@
     main.querySelectorAll('[data-sound]').forEach((b) => (b.onclick = () => cmd('settings', { settings: { sound: b.dataset.sound === 'on' } })));
     $('#kname').onchange = (e) => cmd('settings', { settings: { kitchenName: e.target.value } });
     $('#start').onclick = () => { unlockSound(); cmd('next'); };
+    $('#manage-btn').onclick = () => togglePlayers(true);
     const qr = $('#join-qr');
     if (join) { qr.dataset.url = join.url; qr.innerHTML = join.qr; $('#join-url').textContent = join.url.replace(/^https?:\/\//, ''); }
   }
