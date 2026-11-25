@@ -1,7 +1,9 @@
 # Survive 12 Weeks 🍛
-### A live, phone-voting audience game about a cloud kitchen where orders go up and cash goes down
+### A live, Kahoot-style phone game about cloud kitchens where orders go up and cash goes down
 
-You run the game on a projector. The audience scans a QR code and plays on their phones: no app, no sign-up. Together they run **Spice Route Kitchen** with ₹5,00,000 in the bank. Every week they make a prediction, vote on four decisions, and watch the result. Sales go up while the bank balance goes down. At the end there is a real balance sheet, and one of ten endings depending on what the room chose.
+You run the game on a projector. Everyone in the room scans a QR code and **runs their own cloud kitchen** on their phone, with ₹5,00,000 in the bank. No app, no sign-up. Every week there's a quick question: **right answers put cash into your kitchen (faster = more), wrong answers take cash out.** Then everyone makes their own decisions (discount, ads, stock, staff) and sees what happened to their cash. A **game clock (5 minutes by default)** runs at the top of the screen. When it hits zero, the **richest kitchen wins, and its real balance sheet is analysed on the big screen.**
+
+Everyone gets the same news, the same events and the same luck. Only the answers and the decisions differ.
 
 ---
 
@@ -28,7 +30,7 @@ The terminal prints three things:
 
 Then:
 
-1. Pick the game length, kitchen name, voting timer and sound on the setup screen.
+1. Pick the game clock (3–15 minutes, default 5), kitchen name, answer time (default 20 seconds) and sound on the setup screen.
 2. Let people scan and join. Their nicknames pop up on screen.
 3. Press **Space** to start. After that, Space moves to the next step.
 
@@ -52,12 +54,13 @@ npm run tunnel
 |---|---|
 | **Space** / → | Next step (also skips a running timer) |
 | **P** | Pause / resume the timer |
-| **+** | Add 15 seconds |
+| **+** | Add 15 seconds to the current question/decision |
+| **C** | Add 1 minute to the game clock |
 | **N** | Show/hide presenter notes (only on your screen, a talking point for each step) |
 | **M** | Mute sounds |
 | **F** | Fullscreen |
 | **R** | Restart (asks first). Players stay joined, scores reset |
-| **A** | Auto-play (moves on by itself, good for rehearsing) |
+| **A** | Auto-play: moves past the results screen by itself (good for rehearsing) |
 | ← / → | On the ending: move between the 3 ending screens |
 
 Click once or press any key after opening the host page so the browser allows sound.
@@ -119,32 +122,29 @@ To flip through all ten ending screens without playing, open the **ending-previe
 
 ## 5. How a week works
 
-1. **Headline + advisors (10s).** A news card. Sometimes it's flavour, sometimes it's an event that changes the numbers. Three advisors each give biased advice: 🚀 Rocket Rhea (growth), 🍳 Steady Sam (operations), 💰 Penny Priya (finance).
-2. **Prediction (15s).** A different question each week, with 2 to 4 answers:
-   - *Cash check*: will the bank balance end higher or lower? (Always week 1 and the payout-delay week)
-   - *The money truck*: how much will ZipEats owe us at the end of the week?
-   - *Where the money goes*: which will be the biggest cost?
-   - *Profit vs cash*: will we make a profit on paper?
-   - *Every ₹100*: how much of every ₹100 will we keep? (Depends on the room's discount vote)
-   - *Can we keep up?*: will we turn customers away? (Asked in festival, viral and monsoon weeks)
-   - *Order count*, *In the bin* (food waste), *Danger zone* (cash below ₹1 lakh)
+1. **Headline + advisors (10 seconds, Space skips).** A news card, which is sometimes an event that changes the numbers for everyone. Three advisors give biased advice: 🚀 Rocket Rhea (growth), 🍳 Steady Sam (operations), 💰 Penny Priya (finance).
+2. **Quick question (20 seconds).** Two to four coloured answers, Kahoot-style. One tap, no changing. **It ends the moment everyone has answered.**
+3. **The answer (7 seconds).** How the room answered, the right answer, and a one-line 💡 *why*. That line is the teaching moment. Phones show "✓ Correct! +₹16,500" or "✗ Wrong · −₹10,000".
+4. **Run your own kitchen (20 seconds).** Each phone picks discount, ads, stock and staff for its own kitchen. Boardroom weeks add a fifth choice: a bridge loan, a bulk supplier deal or a price rise. "↺ Same as last week" locks in with one tap. **It ends the moment everyone has locked in.** If someone doesn't decide, their kitchen repeats last week's choices.
+5. **Results (Space to continue).** The projector shows how many kitchens have **less cash than last week, even though they sold more**, the room's average orders vs cash chart, and the top 5 richest kitchens. Each phone shows its own week: orders, sales, cash paid out, cash that arrived from ZipEats, quiz money, cash in the bank, and money still on the way.
 
-   Questions don't repeat back to back. After the reveal, the answer comes with a one-line explanation of *why*. That explanation is the teaching moment.
-3. **Decisions (timer, default 40s).** Discount (none / 10% / 30%), ads (none / ₹15k / ₹45k), ingredient stock (lean / right-sized / heavy), staff (keep / add a cook). Boardroom weeks add a fifth: a bridge loan, a bulk supplier deal, or a menu price rise. Votes are secret until the timer ends. The projector only shows "142 / 187 voted". Ties are settled by a coin flip.
-4. **The split.** How the room voted.
-5. **The reveal.** Orders and sales count up. Costs land one by one. The ZipEats truck shows the money still on its way. Then the bank balance moves, usually down. The Orders-vs-Cash chart grows every week.
-6. **Results.** The answer to the prediction and why, the crowd-wisdom gauge, which advisor would have done best, and the top 5. Phones show each person's points, rank and "You voted X, the room went Y."
+When the game clock hits zero, the week in progress finishes, and then the winner is revealed. The game also ends after 12 weeks, or if every kitchen has closed.
 
-### Scoring (per phone, per week)
+### The questions
+There are 18 rule questions (when ZipEats pays, fixed vs variable costs, margin at 30% off, receivables, what a balance sheet is, loan interest, and more). There are 5 event questions, asked in the week that event happens: payout delay, rival opens, rent hike, viral reel, supplier price hike. And there are 3 questions about the room itself, from week 2: "What did most kitchens choose for discount last week?", "Which kitchen had the most cash?", "How many kitchens saw their cash go down?". **No question is ever asked twice in a game**, and questions rotate between topics. Week 1 is always "When does ZipEats pay you?", because that's the key idea.
 
-- Right prediction: **+100**, plus **+20 for each week in a row** you've been right (up to +100)
-- Voted at all: **+10**
-- Each decision that matches what a careful CFO would pick: **+15**
-- Your secret role's bonus: **+30** (Growth: orders went up · Operations: little waste and nobody turned away · Finance: cash went up)
+### Scoring = cash
+- Right answer: **+₹10,000 to +₹20,000** depending on speed, plus **+₹2,000 for each answer in a row** you've got right (up to +₹10,000).
+- Wrong answer: **−₹10,000**. No answer: ₹0.
+- Quiz money goes straight into your kitchen's cash, and shows on your balance sheet as profit or loss.
+- **Leaderboard = cash score:** cash in the bank, **minus** any loans and unpaid bills. Taking the ₹3 lakh bridge loan doesn't buy you a place on the leaderboard. Investor funding at the end doesn't count either.
+- A kitchen that runs out of cash twice **closes**. Its owner can still answer questions, and winnings pay off its unpaid bills first.
 
 ---
 
 ## 6. How the endings are decided
+
+At the end, **every kitchen** gets one of these ten endings (shown on its phone with its own balance sheet), and the **winner's** ending and balance sheet are walked through on the projector in 3 screens: the balance sheet with callouts, the chart with "what a CFO would say", and the same week played the careful way, next to how the whole room ended.
 
 The rules are checked in this order, and the first match wins.
 
@@ -192,7 +192,7 @@ Payout delay (the cash trap, always in the middle third of the game) · viral re
 
 ## 8. Tuning difficulty
 
-Every number lives in **`server/balance.js`**, with a comment on each. Game settings live in **`config.json`**: kitchen name, default length, timer, sound, seed, **order goals per game length** and demo bot count.
+Every number lives in **`server/balance.js`**, with a comment on each. Game settings live in **`config.json`**: kitchen name, `gameMinutes` (default 5), `questionSeconds` and `decisionSeconds` (default 20), sound, seed, order goals and demo bot count.
 
 After changing anything, run:
 
@@ -222,7 +222,7 @@ Order goals: 850 (6 weeks), 1,000 (8 weeks), 1,150 (12 weeks).
 **Assumptions and deviations from the original brief, stated plainly:**
 - The brief's example goal for a 12-week game was 1,500 orders a week. With the brief's unit economics, careful play reached 1,500 in only about half of games, so the goals are set lower to make "careful play hits the goal ≥70% of the time" true. You can change them in `config.json`.
 - Random voting goes bankrupt in about 32% of 12-week games, slightly under the brief's 35–45%. Real rooms don't vote uniformly at random, and making it harsher also made careful play fail too often.
-- The weekly forecast question became a rotating set of nine questions (see section 5), after feedback that asking the same question every week got boring.
+- The game changed from one shared kitchen voted on by the room to **Kahoot-style: everyone runs their own kitchen**, with cash as the score, a 5-minute game clock, and the winner's balance sheet analysed at the end. The balance numbers below come from the simulation itself, which still applies to every kitchen.
 - Illustrations are emoji in styled tiles, plus a hand-made SVG for the ZipEats truck. Everything works offline with no image files.
 
 ---
@@ -233,7 +233,7 @@ Order goals: 850 (6 weeks), 1,000 (8 weeks), 1,150 (12 weeks).
 npm start            # the game
 npm run demo         # the game + 60 simulated voters
 npm run tunnel       # the game + public link via cloudflared
-npm test             # all tests: simulation, balance sheet, endings, questions, 200-phone end-to-end
+npm test             # all tests: simulation, balance sheets, endings, questions, 200-phone end-to-end
 npm run balance      # difficulty report
 ```
 
@@ -243,7 +243,7 @@ npm run balance      # difficulty report
 server/balance.js     all the tunable numbers
 server/sim.js         the business simulation (pure functions)
 server/events.js      events and the fair weekly schedule
-server/forecasts.js   the rotating prediction questions + explanations
+server/quiz.js        the Kahoot-style question bank + explanations
 server/endings.js     the ten endings: rules and words
 server/game.js        live game: phases, timers, votes, scores, saving
 server/index.js       web server, WebSockets, QR code, tunnel

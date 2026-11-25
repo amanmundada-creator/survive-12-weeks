@@ -110,31 +110,24 @@ function advisorAdvice(state, event, rng, goal) {
 
 // ── Presenter notes: one talking point per step ──
 function presenterNote(phase, ctx) {
-  const { week, weeks, line, event, sim } = ctx;
+  const { week, quiz, room } = ctx || {};
   switch (phase) {
     case 'setup':
-      return 'Welcome everyone. "Today you are not the audience, you are the management team of a cloud kitchen. Take out your phones and scan the code."';
+      return 'Welcome everyone. "Today every one of you runs your own cloud kitchen with ₹5 lakh. Scan the code. The richest kitchen when the clock hits zero wins."';
     case 'lobby':
-      return 'While people join: "You each have a secret role. Growth, Operations or Finance. Your role gives bonus points, so you may not all want the same thing."';
+      return 'While people join: "Right answers put cash in your kitchen. Wrong answers take it out. Answer fast for more."';
     case 'brief':
-      if (week === 1) return 'Week 1: "We have ₹5 lakh in the bank. Our goal is on the screen. Three advisors will tell you what to do. Each of them has a bias."';
-      if (event && event.id === 'settlement') return 'This is the cash trap. Say: "Your sales are fine, but ZipEats is holding your money this week. Watch the bank balance."';
-      if (event && event.bonus === 'loan') return 'Boardroom round. "A loan is cash, but it is not income. Ask yourselves what you would use it for."';
-      if (event && event.bonus) return 'Boardroom round, higher stakes. Ask one person out loud why they would say yes.';
-      return `Read the headline out loud. Ask: "Which advisor do you trust this week, and why?"`;
-    case 'forecast':
-      return 'Forecast first. "Before you decide anything: will the bank balance go up or down this week?" This shows whether people understand cash timing.';
-    case 'vote':
-      return 'While they vote: "You can’t see what others picked until the timer ends. Everyone decides on their own."';
-    case 'split':
-      return 'Read the biggest split out loud. If it’s close, point at the coin flip: "This is what a divided board looks like."';
-    case 'reveal':
-      if (line && line.cash < line.startCash && line.sales > 0) return `Point at the two lines. "Sales went UP to ${formatInr(line.sales)}, but cash went DOWN. Where did the money go?" Point at the truck: it's on its way, it just hasn't arrived.`;
-      return 'Point at the truck. "Sales are counted today, cash comes next week. That gap is where kitchens die."';
-    case 'leaderboard':
-      return week >= weeks ? 'Last week done. "Let’s see where your choices landed us."' : 'Shout out the top forecaster. "Being right about cash is a skill, and it can be learned."';
+      return week === 1 ? 'Week 1: "Same news, same luck for everyone. Only your decisions differ. The advisors each have a bias."' : 'Read the headline out loud. Ask: "Who changes their plan because of this?"';
+    case 'question':
+      return quiz ? `Question: “${quiz.text}” Read it out loud. It closes as soon as everyone has answered.` : '';
+    case 'answer':
+      return quiz ? `Explain the answer: ${quiz.why}` : '';
+    case 'decide':
+      return 'Everyone decides for their OWN kitchen now. It closes as soon as everyone has locked in. Tip for them: "Same as last week" is one tap.';
+    case 'results':
+      return room && room.cashDownShare != null ? `${Math.round(room.cashDownShare * 100)}% of kitchens have LESS cash than last week. Ask a top-5 player what they did differently.` : 'Shout out the leader.';
     case 'ending':
-      return 'Read the CFO lines, then point at "Same kitchen, different choices". Close with: "Growth is not cash. Margins, payout delays and fixed costs decide who survives."';
+      return 'Walk through the winner\'s balance sheet: what they have, what they owe, and why they ended where they did. Close with: "Growth is not cash."';
     default:
       return '';
   }

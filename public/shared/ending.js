@@ -65,6 +65,7 @@
       () => `
         <div class="end-grid end-sheet">
           <div class="end-left">
+            ${data.winner ? `<div class="win-banner">🏆 <b>${esc(data.winner.nick)}</b> wins with ${inr(data.winner.score)} · here’s their kitchen</div>` : ''}
             <div class="end-badge">Ending ${c.n} of 10</div>
             <div class="end-art">${ART[c.art] || '🍛'}</div>
             <h1 class="end-title">${esc(c.title)}</h1>
@@ -95,17 +96,19 @@
             <h3 class="sec">Same kitchen, different choices</h3>
             <p class="cmp-sub">Same weeks, same events, same luck. Played the careful-growth way (10% off, small ads, right-sized stock, hire only when full):</p>
             <div class="cmp-cols">
-              <div class="cmp-col theme-${c.theme}"><div class="cmp-h">You: <b>${esc(c.title)}</b></div>${miniSheet(data.sheet)}</div>
+              <div class="cmp-col theme-${c.theme}"><div class="cmp-h">${data.winner ? esc(data.winner.nick) : 'You'}: <b>${esc(c.title)}</b></div>${miniSheet(data.sheet)}</div>
               <div class="cmp-col theme-${cmp.theme}"><div class="cmp-h">Careful path: <b>${esc(cmp.title)}</b></div>${miniSheet(cmp.sheet)}</div>
             </div>
           </div>
           <div class="crowd">
             <h3 class="sec">The room</h3>
+            ${data.room ? `
+            <div class="stat"><b>${data.room.kitchens - data.room.closed} / ${data.room.kitchens}</b><span>kitchens still open</span></div>
+            <div class="end-dist">${Object.entries(data.room.endings).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id, n]) => `<div class="ed-row"><span>${esc((window.Ending.TITLES || {})[id] || id)}</span><i style="width:${Math.round((n / data.room.kitchens) * 100)}%"></i><b>${n}</b></div>`).join('')}</div>` : `
             <div class="stat"><b>${pct(s.roomAccuracy)}</b><span>of predictions were right</span></div>
-            <div class="stat"><b>${esc(names[s.mostTrusted] || '–')}</b><span>the advisor you followed most</span></div>
-            <div class="stat"><b>${esc(names[s.mostRight] || '–')}</b><span>the advisor who was right most often</span></div>
-            <h3 class="sec">Sharpest forecasters</h3>
-            <div class="podium">${(data.podium || []).map((p, i) => `<div class="pod pod${i + 1}"><div class="pod-medal">${['🥇', '🥈', '🥉'][i]}</div><div class="pod-nick">${esc(p.nick)}</div><div class="pod-score">${num(p.score)} pts</div></div>`).join('') || '<p class="muted">No players</p>'}</div>
+            <div class="stat"><b>${esc(names[s.mostTrusted] || '–')}</b><span>the advisor you followed most</span></div>`}
+            <h3 class="sec">${data.room ? 'Richest kitchens' : 'Sharpest forecasters'}</h3>
+            <div class="podium">${(data.podium || []).map((p, i) => `<div class="pod pod${i + 1}"><div class="pod-medal">${['🥇', '🥈', '🥉'][i]}</div><div class="pod-nick">${esc(p.nick)}</div><div class="pod-score">${data.room ? inr(p.score) : num(p.score) + ' pts'}</div></div>`).join('') || '<p class="muted">No players</p>'}</div>
           </div>
         </div>`;
       },
@@ -137,5 +140,6 @@
     return `<div class="mini">${rows.map(([l, v]) => `<div class="mini-row ${v < 0 || (l === 'Unpaid bills' && v > 0) ? 'bad' : ''}"><span>${l}</span><b>${inr(v)}</b></div>`).join('')}</div>`;
   }
 
-  window.Ending = { renderEnding, sheetHtml };
+  const TITLES = { growthTrap: 'The Growth Trap', discountSpiral: 'Discount Death Spiral', adBurn: 'The Ad Burn', debtSpiral: 'The Debt Spiral', slowBleed: 'The Slow Bleed', fumes: 'Running on Fumes', fridge: 'Cash in the Fridge', stuck: 'Safe but Stuck', grower: 'Balanced Grower', scaled: 'Scaled Up' };
+  window.Ending = { renderEnding, sheetHtml, TITLES, miniSheet };
 })();

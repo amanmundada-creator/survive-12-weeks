@@ -40,7 +40,7 @@ function initialState(opts = {}) {
     emergencyUsed: false,
     bankrupt: false,
     bankruptWeek: null,
-    totals: { sales: 0, ads: 0, discountCost: 0, waste: 0, fixed: 0, food: 0, packaging: 0, commission: 0, interest: 0, penalties: 0, cooks: 0, refunds: 0 },
+    totals: { quiz: 0, sales: 0, ads: 0, discountCost: 0, waste: 0, fixed: 0, food: 0, packaging: 0, commission: 0, interest: 0, penalties: 0, cooks: 0, refunds: 0 },
     flags: { tookBridgeLoan: false, tookSupplierDeal: false, raisedPrice: false },
     history: [],
   };
@@ -274,6 +274,27 @@ function simulateWeek(state, rawDecisions, event, rng) {
   return s;
 }
 
+// Quiz prize money (or a penalty) goes straight into the kitchen's cash and
+// counts as other income/expense, so the balance sheet still balances.
+// A closed kitchen uses winnings to pay down its unpaid bills first.
+function addQuizMoney(state, amount) {
+  const s = clone(state);
+  s.retained += amount;
+  s.totals.quiz = (s.totals.quiz || 0) + amount;
+  if (s.bankrupt) {
+    if (amount >= 0) {
+      const pay = Math.min(amount, s.unpaidBills);
+      s.unpaidBills -= pay;
+      s.cash += amount - pay;
+    } else {
+      const take = Math.min(-amount, s.cash);
+      s.cash -= take;
+      s.unpaidBills += -amount - take;
+    }
+  } else s.cash += amount;
+  return s;
+}
+
 // Funding from the investor (only in the best ending). Cash in, equity up.
 function applyInvestorFunding(state) {
   const s = clone(state);
@@ -323,6 +344,6 @@ function runwayWeeks(s) {
 }
 
 module.exports = {
-  initialState, simulateWeek, expectedDemand, balanceSheet, applyInvestorFunding,
+  initialState, simulateWeek, expectedDemand, balanceSheet, applyInvestorFunding, addQuizMoney,
   receivableTotal, capacity, runwayWeeks, normaliseDecisions, UNIT_FOOD,
 };

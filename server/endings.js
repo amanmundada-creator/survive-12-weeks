@@ -144,10 +144,15 @@ function endingContent(id, s, ctx) {
     stuck: {
       callouts: [
         { key: 'cash', text: `A comfortable ${inr(s.cash)} in the bank.` },
-        { key: 'equipment', text: `But orders went from ${st.first.toLocaleString('en-IN')} to ${st.last.toLocaleString('en-IN')} a week. The goal was ${ctx.goal.toLocaleString('en-IN')}.` },
-        { key: 'retained', text: `${pl}. Fixed costs keep coming while demand slips away.` },
+        { key: 'equipment', text: st.last > st.first
+          ? `But orders only crept from ${st.first.toLocaleString('en-IN')} to ${st.last.toLocaleString('en-IN')} a week, far from the ${ctx.goal.toLocaleString('en-IN')} goal.`
+          : `But orders went from ${st.first.toLocaleString('en-IN')} to ${st.last.toLocaleString('en-IN')} a week. The goal was ${ctx.goal.toLocaleString('en-IN')}.` },
+        { key: 'retained', text: st.last > st.first ? `${pl}. Safe, but growing too slowly to matter.` : `${pl}. Fixed costs keep coming while demand slips away.` },
       ],
-      cfo: [`You protected the cash, but competitors took your customers while you waited.`, `Cash in the bank should be used to grow carefully, not just kept safe.`],
+      cfo: st.last > st.first
+        ? [`You protected the cash, which is why you finished on top. But the kitchen barely grew.`, `With this much cash in the bank, you could afford a modest discount or small ads to grow faster.`]
+        : [`You protected the cash, but competitors took your customers while you waited.`, `Cash in the bank should be used to grow carefully, not just kept safe.`],
+      ...(st.last > st.first ? { tagline: 'Safe, but barely growing.' } : {}),
     },
     grower: {
       callouts: [

@@ -332,3 +332,48 @@ h1, h2, h3 { margin: 0; }
 #conn { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); background: var(--red); color: #fff; padding: 6px 16px; border-radius: 999px; font-weight: 800; font-size: 18px; display: none; z-index: 70; }
 #conn.on { display: block; }
 #sound-hint { position: absolute; top: 142px; left: 48px; font-size: 18px; font-weight: 800; color: var(--muted); z-index: 3; }
+
+/* ── Kahoot-style additions ── */
+.game-clock { background: var(--ink); color: var(--cream); border-radius: 20px; padding: 8px 26px; text-align: center; min-width: 240px; }
+.game-clock .gc-l { font-size: 15px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75; }
+.game-clock .gc-v { font-size: 56px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+.game-clock.low { background: var(--red); animation: pulse 1s infinite; }
+#top { justify-content: space-between; }
+.lead-v { font-size: 26px !important; white-space: nowrap; max-width: 330px; overflow: hidden; text-overflow: ellipsis; }
+.lead-v small { font-size: 20px; color: var(--cash); }
+.kq { height: 100%; display: flex; flex-direction: column; gap: 26px; padding-right: 200px; }
+.kq-head { display: flex; align-items: center; gap: 26px; }
+.kq-head .phase-title { margin: 0; }
+.kq-score { font-size: 30px; font-weight: 700; } .kq-score b { color: var(--cash); font-size: 40px; }
+.kq-text { font-size: 64px; font-weight: 900; line-height: 1.12; letter-spacing: -0.01em; background: var(--paper); border: 2px solid var(--line); border-radius: var(--radius); padding: 30px 40px; box-shadow: var(--shadow); }
+.kq-text.long { font-size: 52px; }
+.kq-text.small { font-size: 34px; padding: 18px 28px; }
+.kq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+.kq-grid.n3 { grid-template-columns: 1fr 1fr 1fr; }
+.kq-opt { border-radius: 22px; color: #fff; font-size: 40px; font-weight: 900; display: flex; align-items: center; gap: 22px; padding: 20px 30px; box-shadow: 0 6px 0 rgba(0,0,0,.2); }
+.kq-opt .shape, .kb-l .shape { font-size: 46px; opacity: 0.9; }
+.c0 { --kc: #c9182b; } .c1 { --kc: #1d5fbf; } .c2 { --kc: #b8860b; } .c3 { --kc: #1f7a4a; }
+.kq-opt { background: var(--kc); }
+.kq-foot { font-size: 24px; font-weight: 700; color: var(--ink-2); text-align: center; margin-right: 0; }
+.kq-bars { display: flex; gap: 30px; flex: 1; align-items: stretch; }
+.kq-bar { flex: 1; display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+.kb-col { flex: 1; display: flex; align-items: flex-end; background: var(--cream-2); border-radius: 16px; overflow: hidden; }
+.kb-col i { display: block; width: 100%; background: var(--kc); border-radius: 16px 16px 0 0; animation: grow 0.8s cubic-bezier(.2,.8,.2,1); transform-origin: bottom; }
+@keyframes grow { from { transform: scaleY(0); } }
+.kb-n { font-size: 40px; font-weight: 900; text-align: center; }
+.kb-l { background: var(--kc); color: #fff; border-radius: 16px; padding: 14px 18px; font-size: 26px; font-weight: 900; display: flex; gap: 12px; align-items: center; min-height: 86px; }
+.kq-bar.wrong { opacity: 0.35; }
+.kq-bar.right .kb-l { box-shadow: 0 0 0 6px var(--paper), 0 0 0 10px var(--kc); }
+.kq-why { font-size: 30px; font-weight: 750; background: var(--amber-soft); border-radius: 18px; padding: 18px 26px; line-height: 1.35; }
+.results { display: grid; grid-template-columns: 1fr 720px; gap: 36px; height: 100%; }
+.res-left { display: flex; flex-direction: column; gap: 20px; }
+.res-stat { display: flex; align-items: center; gap: 26px; padding: 18px 28px; }
+.res-stat .rs-big { font-size: 96px; font-weight: 900; color: var(--orange); line-height: 1; }
+.res-stat.alarm .rs-big { color: var(--red); }
+.res-stat .rs-t { font-size: 30px; font-weight: 650; line-height: 1.3; }
+.rl.closed { color: var(--red); }
+.win-banner { background: var(--turmeric); color: var(--ink); font-size: 26px; font-weight: 800; padding: 10px 18px; border-radius: 14px; margin-bottom: 14px; }
+.end-dist { display: grid; gap: 8px; margin: 6px 0 10px; }
+.ed-row { display: grid; grid-template-columns: 240px 1fr 50px; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; }
+.ed-row i { display: block; height: 18px; background: var(--orange); border-radius: 999px; min-width: 6px; }
+.ed-row b { text-align: right; }

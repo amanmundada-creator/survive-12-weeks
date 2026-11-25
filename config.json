@@ -1,10 +1,15 @@
 {
   "kitchenName": "Spice Route Kitchen",
-  "defaultWeeks": 8,
-  "voteSeconds": 40,
   "sound": true,
   "seed": null,
-  "goals": { "6": 850, "8": 1000, "12": 1150 },
+  "goals": {
+    "6": 850,
+    "8": 1000,
+    "12": 1150
+  },
   "port": 3000,
-  "demoBots": 60
+  "demoBots": 60,
+  "gameMinutes": 5,
+  "questionSeconds": 20,
+  "decisionSeconds": 20
 }

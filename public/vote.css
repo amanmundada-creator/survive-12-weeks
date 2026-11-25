@@ -134,3 +134,34 @@ body { background: var(--cream); overscroll-behavior: none; -webkit-tap-highligh
   .dec { padding: 8px 10px 10px; }
   .screen { gap: 8px; padding-top: 10px; }
 }
+
+/* ── Kahoot-style phone ── */
+.c0 { --kc: #c9182b; } .c1 { --kc: #1d5fbf; } .c2 { --kc: #b8860b; } .c3 { --kc: #1f7a4a; }
+.kq-q { font-size: 21px; font-weight: 900; line-height: 1.25; text-align: center; margin: 4px 0; }
+.kq-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; min-height: 340px; }
+.kq-btns.n2 { grid-template-columns: 1fr; }
+.kq-btns.n3 { grid-template-columns: 1fr; }
+.kq-b { border: none; border-radius: 18px; background: var(--kc); color: #fff; font-size: 17px; font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px; box-shadow: 0 5px 0 rgba(0,0,0,.25); line-height: 1.2; }
+.kq-b .shape { font-size: 30px; }
+.kq-b:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.qres { text-align: center; padding: 22px; border-width: 3px; }
+.qres .qr-h { font-size: 26px; font-weight: 900; }
+.qres.ok { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+.qres.no { background: var(--red-soft); border-color: var(--red); color: var(--red); }
+.ans-big { font-size: 20px; font-weight: 900; margin: 6px 0; display: flex; align-items: center; gap: 10px; }
+.ans-big .shape { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--kc); color: #fff; }
+.mykit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mykit div { display: flex; flex-direction: column; } .mykit span { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; } .mykit b { font-size: 19px; font-variant-numeric: tabular-nums; }
+.repeat-btn { border: 2.5px dashed var(--orange); background: transparent; color: var(--orange); border-radius: 14px; padding: 10px; font-weight: 900; font-size: 16px; }
+.res-pts .p.neg { color: var(--red); }
+.wk div { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 15px; font-weight: 700; }
+.wk div:last-child { border-bottom: none; }
+.wk b { font-variant-numeric: tabular-nums; } .wk small { color: var(--red); font-weight: 700; }
+.wk .neg { color: var(--red); } .wk .pos { color: var(--cash); }
+.wk .tot { border-top: 2px solid var(--ink); border-bottom: none; margin-top: 4px; font-size: 17px; }
+.alarm { background: var(--red); color: #fff; border-color: var(--red); font-weight: 800; line-height: 1.35; }
+.lesson-s { text-align: center; font-weight: 800; font-size: 15px; color: var(--orange); margin: 0; }
+.win { background: var(--turmeric); border-color: var(--turmeric); color: #2a1508; font-weight: 900; font-size: 18px; text-align: center; }
+.mini-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 15px; font-weight: 650; }
+.mini-row b { font-variant-numeric: tabular-nums; } .mini-row.bad b { color: var(--red); }
+.mini-row.tot { border-bottom: none; color: var(--green); font-weight: 800; }

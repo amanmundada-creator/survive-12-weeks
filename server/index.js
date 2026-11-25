@@ -159,8 +159,9 @@ wss.on('connection', (ws, req) => {
     const id = ws.deviceId;
     if (!id) return;
     if (m.t === 'nick') game.setNick(id, m.nick);
-    else if (m.t === 'forecast') game.forecast(id, m.v);
-    else if (m.t === 'vote') game.vote(id, m.key, m.v);
+    else if (m.t === 'answer') game.answer(id, m.i);
+    else if (m.t === 'choose') game.choose(id, m.key, m.v);
+    else if (m.t === 'repeat') game.repeatLast(id);
   });
   ws.on('close', () => {
     sockets.hosts.delete(ws);
@@ -183,6 +184,7 @@ function hostCommand(m) {
     case 'next': return game.next();
     case 'pause': return game.pause();
     case 'addTime': return game.addTime(15000);
+    case 'addClock': return game.addClock(60000);
     case 'settings': return game.setSettings(m.settings || {});
     case 'restart': return game.reset(true, Math.floor(Math.random() * 1e6));
     case 'replay': return game.reset(true);
