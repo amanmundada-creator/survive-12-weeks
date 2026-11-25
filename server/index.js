@@ -106,9 +106,16 @@ if (DEMO) {
 // ── web server ──
 const app = express();
 app.disable('x-powered-by');
+app.set('trust proxy', true); // so links show https behind Render's proxy
 const pub = path.join(ROOT, 'public');
 const page = (file) => (req, res) => res.sendFile(path.join(pub, file));
-const hostOnly = (req, res, next) => (req.query.token === HOST_TOKEN ? next() : res.status(403).send('<h1 style="font-family:sans-serif">Host link needed</h1><p style="font-family:sans-serif">Open the host link printed in the terminal (it ends in <code>?token=…</code>).</p>'));
+const DENIED = `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><div style="font-family:system-ui,sans-serif;max-width:640px;margin:40px auto;padding:0 20px;line-height:1.5;color:#2a1508">
+<h1>Host link needed</h1>
+<p>This page is the presenter’s screen, so it needs the secret token at the end of the address:<br><code>__ADDR__/host?token=YOUR-TOKEN</code></p>
+<p><b>Running online on Render?</b> Open your service on dashboard.render.com → <b>Environment</b> → copy the value of <b>HOST_TOKEN</b>, then add <code>?token=</code> and that value to this address.</p>
+<p><b>Running on your laptop?</b> Use the host link printed in the terminal.</p>
+<p>Joining as a player? Go to the <a href="/">join page</a> instead.</p></div>`;
+const hostOnly = (req, res, next) => (req.query.token === HOST_TOKEN ? next() : res.status(403).send(DENIED.replace('__ADDR__', req.protocol + '://' + (req.headers['x-forwarded-host'] || req.headers.host))));
 app.get('/', page('vote.html'));
 app.get('/vote', page('vote.html'));
 app.get('/host', hostOnly, page('host.html'));
