@@ -1,0 +1,16 @@
+# One-click deploy on Render (https://render.com): New → Blueprint → pick this repo.
+services:
+  - type: web
+    name: survive-12-weeks
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      # The password-like part of your host link. Render makes a random one;
+      # find it under the service's "Environment" tab.
+      - key: HOST_TOKEN
+        generateValue: true
+      - key: NODE_VERSION
+        value: "20"

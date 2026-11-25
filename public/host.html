@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Host · Survive 12 Weeks</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍛</text></svg>">
+<link rel="stylesheet" href="/shared/base.css">
+<link rel="stylesheet" href="/host.css">
+</head>
+<body>
+<div id="stage">
+  <header id="top"></header>
+  <main id="main"></main>
+  <div id="timer"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="42"/><circle class="fg" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"/></svg><div class="t">40</div><div class="lbl"></div></div>
+  <div id="corner-qr"><div class="qr"></div><div><div class="cq-t">Join late? Scan to vote</div><div class="cq-u"></div></div></div>
+  <aside id="notes"></aside>
+  <div id="pause">PAUSED<small>Press P to continue</small></div>
+  <div id="toast"></div>
+  <div id="confirm"><div class="box"><h2>Start over?</h2><p>This ends the current game. Everyone stays joined, scores go back to zero.</p><button class="yes">Yes, restart</button><button class="no">Cancel</button></div></div>
+  <div id="conn">Reconnecting…</div>
+  <div id="sound-hint"></div>
+  <footer id="keys"><kbd>Space</kbd> next · <kbd>P</kbd> pause · <kbd>+</kbd> 15s · <kbd>N</kbd> notes · <kbd>M</kbd> mute · <kbd>F</kbd> fullscreen · <kbd>R</kbd> restart · <kbd>A</kbd> auto-play</footer>
+</div>
+<script src="/shared/util.js"></script>
+<script src="/shared/sound.js"></script>
+<script src="/shared/chart.js"></script>
+<script src="/shared/ending.js"></script>
+<script src="/host.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "survive-12-weeks",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Live QR-voting audience game: a cloud kitchen where orders grow but cash runs out.",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "demo": "node server/index.js --demo",
+    "tunnel": "node server/index.js --tunnel",
+    "test": "node --test test/",
+    "balance": "node scripts/balance.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4",
+    "ws": "^8.18.0"
+  }
+}

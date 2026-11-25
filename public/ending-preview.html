@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ending preview · Survive 12 Weeks</title>
+<link rel="stylesheet" href="/shared/base.css">
+<link rel="stylesheet" href="/host.css">
+<style>
+  html, body { overflow: hidden; }
+  #bar { position: fixed; left: 0; right: 0; top: 0; height: 56px; background: #2a1508; color: #fff6e8; display: flex; align-items: center; gap: 8px; padding: 0 12px; z-index: 10; overflow-x: auto; font-family: var(--font); }
+  #bar button { background: #4a2e1a; color: #fff6e8; border: none; border-radius: 10px; padding: 8px 12px; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  #bar button.on { background: var(--orange); }
+  #bar .sep { width: 1px; height: 30px; background: #6b4a32; margin: 0 6px; }
+  #bar .t { font-weight: 900; margin-right: 6px; white-space: nowrap; }
+  #stage { top: 56px; }
+  #main { top: 40px; }
+  #info { position: absolute; left: 48px; top: 6px; font-size: 18px; font-weight: 800; color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="bar"><span class="t">🎬 Endings</span><span id="tabs"></span><span class="sep"></span><button id="prev">◀ Step</button><button id="next">Step ▶</button><span class="sep"></span><span id="lens"></span></div>
+<div id="stage"><div id="info"></div><main id="main"></main></div>
+<script src="/shared/util.js"></script>
+<script src="/shared/chart.js"></script>
+<script src="/shared/ending.js"></script>
+<script>
+(function () {
+  const token = new URLSearchParams(location.search).get('token');
+  const stage = document.getElementById('stage');
+  let data = [], idx = 0, step = 0, weeks = 12;
+  function fit() {
+    const h = window.innerHeight - 56;
+    const k = Math.min(window.innerWidth / 1920, h / 1080);
+    stage.style.transform = `translate(${(window.innerWidth - 1920 * k) / 2}px, 0) scale(${k})`;
+  }
+  window.addEventListener('resize', fit); fit();
+  async function load() {
+    const r = await fetch(`/api/endings?token=${encodeURIComponent(token)}&weeks=${weeks}`);
+    data = await r.json();
+    idx = Math.min(idx, data.length - 1);
+    tabs(); show();
+  }
+  function tabs() {
+    document.getElementById('tabs').innerHTML = data.map((d, i) => `<button data-i="${i}" class="${i === idx ? 'on' : ''}">${d.content.n}. ${U.esc(d.content.title)}</button>`).join(' ');
+    document.querySelectorAll('#tabs button').forEach((b) => (b.onclick = () => { idx = +b.dataset.i; step = 0; tabs(); show(); }));
+    document.getElementById('lens').innerHTML = [6, 8, 12].map((w) => `<button data-w="${w}" class="${w === weeks ? 'on' : ''}">${w} weeks</button>`).join(' ');
+    document.querySelectorAll('#lens button').forEach((b) => (b.onclick = () => { weeks = +b.dataset.w; step = 0; load(); }));
+  }
+  function show() {
+    const d = data[idx];
+    if (!d) return;
+    document.getElementById('info').textContent = `Sample game: ${d.weeks} weeks · seed ${d.seed} · balance sheet ${d.sheet.balanced ? 'balances ✓' : 'DOES NOT BALANCE ✗'} · step ${step + 1} of 3 (arrow keys)`;
+    const root = document.createElement('div');
+    const main = document.getElementById('main');
+    main.innerHTML = '';
+    main.appendChild(root);
+    Ending.renderEnding(root, { ...d }, step);
+  }
+  document.getElementById('prev').onclick = () => { step = Math.max(0, step - 1); show(); };
+  document.getElementById('next').onclick = () => { step = Math.min(2, step + 1); show(); };
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); if (step < 2) step++; else { idx = (idx + 1) % data.length; step = 0; tabs(); } show(); }
+    if (e.key === 'ArrowLeft') { if (step > 0) step--; else { idx = (idx - 1 + data.length) % data.length; step = 2; tabs(); } show(); }
+  });
+  load();
+})();
+</script>
+</body>
+</html>
