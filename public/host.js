@@ -107,7 +107,7 @@
 
   // ── clocks ──
   const phaseLeft = () => (!view || view.remainingMs == null ? null : view.paused ? view.remainingMs : Math.max(0, view.remainingMs - (Date.now() - recvAt)));
-  const clockLeft = () => (!view ? 0 : view.paused || view.phase === 'setup' ? view.clockMs : Math.max(0, view.clockMs - (Date.now() - recvAt)));
+  const clockLeft = () => (!view ? 0 : view.paused || view.phase === 'setup' || view.phase === 'intro' ? view.clockMs : Math.max(0, view.clockMs - (Date.now() - recvAt)));
   const mmss = (ms) => { const t = Math.ceil(ms / 1000); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
 
   function renderTop() {
@@ -115,7 +115,7 @@
     // hide the leader while the room is asked who the leader is
     const lb = v.phase === 'question' && v.quiz && v.quiz.id === 'roomLeader' ? { nick: '???', score: null } : v.leaderboard && v.leaderboard[0];
     const room = v.room;
-    const weekTxt = v.phase === 'setup' ? `${v.minutes}-minute game · waiting to start` : v.phase === 'ending' ? 'Game over' : `Week ${v.week}`;
+    const weekTxt = v.phase === 'setup' ? `${v.minutes}-minute game · waiting to start` : v.phase === 'intro' ? 'Briefing' : v.phase === 'ending' ? 'Game over' : `Week ${v.week}`;
     $('#top').innerHTML = `
       <div class="brand"><div class="brand-name">${esc(v.kitchenName)}</div><div class="brand-week">${weekTxt}</div></div>
       <div class="game-clock" id="game-clock"><div class="gc-l">Game clock</div><div class="gc-v" id="gc-v">${mmss(clockLeft())}</div></div>
@@ -187,7 +187,7 @@
     lastTickSec = null;
     if (to === 'setup' || to === 'ending') endingStep = 0;
     if (!view.sound) return;
-    if (to === 'brief') Sound.whoosh();
+    if (to === 'brief' || to === 'intro') Sound.whoosh();
     if (to === 'question') Sound.ding();
     if (to === 'answer') Sound.register();
     if (to === 'decide') Sound.coin();
@@ -200,7 +200,7 @@
     const key = `${v.phase}|${v.week}|${v.phase === 'ending' ? endingStep : ''}`;
     if (key === mainKey && !force) return updateLive();
     mainKey = key;
-    const fn = { setup: viewSetup, brief: viewBrief, question: viewQuestion, answer: viewAnswer, decide: viewDecide, results: viewResults, ending: viewEnding }[v.phase];
+    const fn = { setup: viewSetup, intro: viewIntro, brief: viewBrief, question: viewQuestion, answer: viewAnswer, decide: viewDecide, results: viewResults, ending: viewEnding }[v.phase];
     if (fn) fn();
     updateLive();
   }
@@ -264,6 +264,15 @@
     $('#start').onclick = () => { unlockSound(); cmd('next'); };
     const qr = $('#join-qr');
     if (join) { qr.dataset.url = join.url; qr.innerHTML = join.qr; $('#join-url').textContent = join.url.replace(/^https?:\/\//, ''); }
+  }
+
+  // ── INTRO: the business briefing ──
+  function viewIntro() {
+    const cards = window.U.briefCards(view.facts);
+    main.innerHTML = `<div class="intro">
+      <div class="intro-head"><div><div class="phase-title">Before we start · 60-second briefing</div><h2>How your kitchen makes (and loses) money</h2></div><div class="intro-go">Press <kbd>Space</kbd> to start the ${view.minutes}-minute clock</div></div>
+      <div class="intro-grid">${cards.map((c, i) => `<div class="ic card" style="animation-delay:${i * 0.08}s"><div class="ic-e">${c.e}</div><div><h3>${c.t}</h3><p>${c.b}</p></div></div>`).join('')}</div>
+    </div>`;
   }
 
   // ── BRIEF ──

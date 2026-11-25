@@ -17,6 +17,16 @@ const { pickQuiz } = require('./quiz');
 const { randomNick, ROLES, DECISIONS, DEFAULT_CHOICE, advisorAdvice, presenterNote } = require('./content');
 
 const ROLE_KEYS = Object.keys(ROLES);
+// The business basics shown in the briefing (from the real game numbers)
+const keepPer = (d) => Math.round(B.MENU_PRICE * (1 - d) * (1 - B.COMMISSION_PCT) - B.PLATFORM_FEE - B.MENU_PRICE * B.FOOD_COST_PCT - B.PACKAGING);
+const FACTS = {
+  startCash: B.START_CASH, menuPrice: B.MENU_PRICE, food: Math.round(B.MENU_PRICE * B.FOOD_COST_PCT), packaging: B.PACKAGING,
+  commissionPct: Math.round(B.COMMISSION_PCT * 100), platformFee: B.PLATFORM_FEE,
+  keepFull: Math.floor(B.MENU_PRICE * (1 - B.COMMISSION_PCT) - B.PLATFORM_FEE - B.MENU_PRICE * B.FOOD_COST_PCT - B.PACKAGING), keep10: keepPer(0.1), keep30: keepPer(0.3), // full price is ₹110.50, shown as ₹110 like the questions
+  rent: B.RENT, staff: B.BASE_STAFF, utilities: B.UTILITIES, fixed: B.RENT + B.BASE_STAFF + B.UTILITIES,
+  cooks: B.START_COOKS, perCook: B.CAPACITY_PER_COOK, cookCost: B.EXTRA_COOK, wastePct: Math.round(B.PERISHABLE_SHARE * 100),
+  rescueRate: Math.round(B.EMERGENCY_RATE * 100),
+};
 const CORE = ['discount', 'ads', 'stock', 'staff'];
 const MAX_WEEKS = 12;
 const ANSWER_MS = 7000;
@@ -117,6 +127,12 @@ class Game {
     while (s.schedule.length < MAX_WEEKS) s.schedule.push({ week: s.schedule.length + 1, id: 'flavour', bonus: null, headline: 'Another busy week in the kitchen' });
     s.schedule.forEach((e) => (e.demoDay = false));
     Object.values(s.players).forEach((p) => (p.sim = initialState({ weeks: s.plannedWeeks })));
+    // First, the business briefing on every screen. The game clock starts after it.
+    this.setPhase('intro');
+  }
+
+  startClockAndPlay() {
+    const s = this.s;
     s.clockEndsAt = Date.now() + s.settings.minutes * 60000;
     this.armClock();
     this.beginWeek(1);
@@ -239,6 +255,7 @@ class Game {
     const s = this.s;
     switch (s.phase) {
       case 'setup': return this.start();
+      case 'intro': return this.startClockAndPlay();
       case 'brief': return this.setPhase('question', s.settings.qSeconds * 1000);
       case 'question': return this.closeQuestion();
       case 'answer': return this.setPhase('decide', s.settings.dSeconds * 1000);
@@ -549,6 +566,7 @@ class Game {
       decisions: s.week && s.schedule ? this.decisionKeys() : CORE,
       endedEarly: !!s.endedEarly && s.endedEarly === s.phase,
       ending: s.ending ? { title: s.ending.content.title, theme: s.ending.content.theme, winner: s.ending.winner && s.ending.winner.nick } : null,
+      facts: s.phase === 'setup' || s.phase === 'intro' ? FACTS : null,
     };
   }
 

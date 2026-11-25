@@ -1,93 +1,90 @@
-// Kahoot-style questions. Every answer is known the moment the timer ends, so
-// the room sees the right answer, the split and the cash won or lost at once.
-// Each game uses each question at most once.
-const B = require('./balance');
+// Kahoot-style ACCOUNTING questions, told through the kitchen's own story.
+// Every answer is known the moment the timer ends. Each game uses each
+// question at most once, and the answer order is shuffled per game.
+//
+// Format: [id, category, question, options (CORRECT ONE FIRST), why, noShuffle?]
 const { makeRng } = require('./rng');
 
-const inr = (x) => {
-  const n = Math.round(Math.abs(x)).toString();
-  const out = n.length <= 3 ? n : n.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + n.slice(-3);
-  return (x < 0 ? '−₹' : '₹') + out;
-};
-const keep = (disc) => Math.round(B.MENU_PRICE * (1 - disc) * (1 - B.COMMISSION_PCT) - B.PLATFORM_FEE - B.MENU_PRICE * B.FOOD_COST_PCT - B.PACKAGING);
-const FIXED = B.RENT + B.BASE_STAFF + B.UTILITIES;
-
-// Static questions: [id, category, text, options, correct index, why]
 const STATIC = [
-  ['payday', 'cash', 'A customer orders today. When does ZipEats pay you for it?', ['Instantly', 'At the end of next week', 'Next month', 'When the food is delivered'], 1, 'ZipEats pays each week’s sales at the end of the following week. Until then it’s money owed, not money in the bank.'],
-  ['receivable', 'words', 'Money ZipEats owes you but hasn’t paid yet is called…', ['Revenue', 'A receivable', 'Profit', 'Equity'], 1, 'A receivable is yours on paper, but you can’t pay rent with it until it arrives.'],
-  ['fixed', 'words', 'Which of these is a FIXED cost?', ['Ingredients', 'Packaging', 'Rent', 'ZipEats commission'], 2, `Rent, salaries and utilities (about ${inr(FIXED)} a week) stay the same whether you sell 10 orders or 1,000.`],
-  ['keep30', 'margin', `At 30% off a ₹350 dish, how much do you keep per order after food, packaging and ZipEats?`, ['₹110', '₹84', `₹${keep(0.3)}`, '₹245'], 2, `At 30% off you keep about ₹${keep(0.3)}. At full price it’s ₹${keep(0)}. Big discounts leave almost nothing for rent.`],
-  ['keepFull', 'margin', 'At FULL price (₹350), how much do you keep per order after food, packaging and ZipEats?', ['₹32', `₹${keep(0)}`, '₹200', '₹350'], 1, `₹350 − ₹126 food − ₹14 packaging − ZipEats’ 25% + ₹12 fee ≈ ₹${keep(0)}.`],
-  ['commission', 'margin', 'How much does ZipEats take from every order?', ['10%', '18%', '25% + ₹12 fee', '40%'], 2, 'ZipEats keeps 25% of the price the customer pays, plus a ₹12 platform fee per order.'],
-  ['profitCash', 'cash', 'True or false: a kitchen can make a PROFIT and still run out of CASH.', ['True', 'False'], 0, 'True. Profit counts sales today; cash arrives later. Growing kitchens die in that gap.'],
-  ['waste', 'ops', 'What happens to food you bought but didn’t sell this week?', ['It’s all kept for next week', 'Most of it is thrown away', 'ZipEats refunds it', 'The supplier takes it back'], 1, 'About 60% of unsold stock spoils and is thrown away. Only dry goods keep.'],
-  ['cook', 'ops', 'An extra cook costs ₹5,500 a week. How many more orders a week can the kitchen cook?', ['100', '250', '450', '1,000'], 2, 'Each cook adds about 450 orders of capacity. Hire only when the kitchen is actually full.'],
-  ['fixedTotal', 'cash', 'Roughly how much are rent + base staff + utilities every week?', ['₹18,000', `₹${Math.round(FIXED / 1000)},000`, '₹1,20,000', '₹2,50,000'], 1, `About ${inr(FIXED)} a week, whatever happens. That’s what drains a quiet kitchen.`],
-  ['rescue', 'cash', 'What happens the FIRST time your cash goes below zero?', ['Game over', 'An emergency loan at 6% a week', 'ZipEats pays you early', 'Nothing'], 1, 'A lender rescues you once, at a harsh 6% a week. The second time, the kitchen closes.'],
-  ['payRent', 'cash', 'Which of these can pay the rent TODAY?', ['Money owed by ZipEats', 'Ingredients in stock', 'Cash in the bank', 'Kitchen equipment'], 2, 'Only cash pays bills. Receivables, stock and equipment are assets, but not spendable today.'],
-  ['equation', 'words', 'On a balance sheet, Assets always equal…', ['Revenue − Costs', 'Liabilities + Equity', 'Cash + Profit', 'Sales × Margin'], 1, 'Everything the kitchen has (assets) was paid for either by borrowing (liabilities) or by the owner and profits (equity).'],
-  ['interest', 'cash', 'A ₹3,00,000 loan at 2.5% a WEEK costs how much interest each week?', ['₹2,500', '₹7,500', '₹25,000', '₹75,000'], 1, '2.5% of ₹3 lakh is ₹7,500 every week. That’s about 130% a year.'],
-  ['discountPrice', 'margin', 'With 10% off a ₹350 dish, what does the customer pay?', ['₹340', '₹315', '₹280', '₹245'], 1, 'They pay ₹315, and ZipEats’ 25% is taken from that lower price. You fund the discount.'],
-  ['adsWhen', 'cash', 'When do you pay for ads?', ['When customers order', 'Up front, this week', 'After ZipEats pays you', 'Only if they work'], 1, 'Ads are paid today; the customers (and their money) come later.'],
-  ['inventoryAsset', 'words', 'True or false: ingredients sitting in your fridge count as an asset.', ['True', 'False'], 0, 'True. Stock is an asset, but it’s cash you’ve already spent and can’t use for rent.'],
-  ['equity', 'words', 'On the balance sheet, where do your profits (or losses) so far appear?', ['Under assets', 'Under liabilities', 'On the owner’s side (equity)', 'They don’t'], 2, 'Profit or loss builds up on the owner’s side as “retained earnings”.'],
+  // ── words accountants use ──
+  ['payday', 'terms', 'ZipEats will pay you ₹2,40,000 next Tuesday for this week’s orders. Until it lands in your bank, that money is called…', ['Accounts receivable', 'Accounts payable', 'Revenue in the bank', 'Prepaid expense'], 'Money someone owes YOU is accounts receivable: it’s an asset, but it isn’t cash yet.'],
+  ['payable', 'terms', 'You got ₹60,000 of vegetables today but will pay the supplier next Friday. That ₹60,000 is…', ['Accounts payable', 'Accounts receivable', 'Inventory', 'Revenue'], 'Money YOU owe a supplier is accounts payable, a liability.'],
+  ['prepaid', 'terms', 'You pay 3 months’ rent (₹66,000) in advance today. The part you haven’t used yet is…', ['A prepaid expense (an asset)', 'A liability', 'Revenue', 'Depreciation'], 'Rent paid in advance is an asset until you use it up, month by month.'],
+  ['unearned', 'terms', 'An office pays you ₹50,000 today for a lunch party you’ll cook next month. Until you cook it, that ₹50,000 is…', ['Unearned revenue (a liability)', 'Revenue', 'Accounts receivable', 'Profit'], 'You still owe them the food, so it’s a liability until you deliver.'],
+  ['accrued', 'terms', 'Your cooks worked all week, but salaries are paid on the 1st of next month. The salary you owe right now is…', ['An accrued expense (liability)', 'A prepaid expense', 'Accounts receivable', 'Revenue'], 'Costs you’ve incurred but not yet paid are accrued expenses, a liability.'],
+  ['cogs', 'terms', 'The ingredients and packaging used to make the food you sold are called…', ['Cost of goods sold (COGS)', 'Fixed costs', 'Overheads', 'Capital expenditure'], 'COGS are the direct costs of what you sold. Sales minus COGS is gross profit.'],
+  ['variable', 'terms', 'Which cost goes UP when you sell more orders?', ['Packaging', 'Rent', 'The manager’s salary', 'Equipment depreciation'], 'Packaging, food and ZipEats’ cut are variable costs: they grow with every order.'],
+  ['fixed', 'terms', 'Which of these is a FIXED cost for the kitchen?', ['Rent', 'Ingredients', 'Packaging', 'ZipEats commission'], 'Rent is the same whether you sell 10 orders or 1,000. That’s a fixed cost.'],
+  ['commissionType', 'terms', 'ZipEats keeps 25% of every order. That commission is a…', ['Variable cost', 'Fixed cost', 'Asset', 'Liability'], 'It rises and falls with your sales, so it’s a variable cost.'],
+  ['capex', 'terms', 'You buy a new ₹80,000 tandoor that will last 5 years. In accounting, that’s…', ['Capital expenditure (an asset)', 'An expense this week', 'Cost of goods sold', 'A liability'], 'Things that last years are capitalised as assets, then depreciated over time.'],
+  ['workingCapital', 'terms', 'Current assets minus current liabilities is called…', ['Working capital', 'Net profit', 'Equity', 'Gross margin'], 'Working capital shows if you can cover short-term bills with short-term assets.'],
+  ['liquidity', 'terms', 'Being able to pay the bills that are due THIS week is called…', ['Liquidity', 'Profitability', 'Depreciation', 'Solvency'], 'Liquidity is about cash available now. A profitable kitchen can still be illiquid.'],
+  ['cashBasis', 'terms', 'Recording a sale only when the cash actually arrives is called…', ['Cash-basis accounting', 'Accrual accounting', 'Double-entry', 'Depreciation'], 'Cash basis follows the bank. Accrual records sales when they’re earned.'],
+  ['doubleEntry', 'terms', 'In double-entry bookkeeping, every transaction changes at least…', ['Two accounts', 'One account', 'Three accounts', 'Only the bank account'], 'Every entry has two sides, a debit and a credit. That’s why the books balance.'],
+
+  // ── the financial statements ──
+  ['equation', 'statements', 'The accounting equation: Assets = …', ['Liabilities + Equity', 'Revenue − Expenses', 'Cash + Profit', 'Sales × Margin'], 'Everything you own was paid for by borrowing (liabilities) or by owners and profits (equity).'],
+  ['plStatement', 'statements', 'Which statement tells you whether the kitchen made a PROFIT this week?', ['Profit & loss statement', 'Balance sheet', 'Cash flow statement', 'Bank statement'], 'The P&L (income statement) shows revenue minus expenses over a period.'],
+  ['cfStatement', 'statements', 'Which statement shows how much CASH actually came in and went out?', ['Cash flow statement', 'Profit & loss statement', 'Balance sheet', 'Trial balance'], 'Profit and cash differ. The cash flow statement follows the actual money.'],
+  ['bsSnapshot', 'statements', 'A balance sheet shows…', ['What you own and owe at one moment', 'Your sales over the week', 'Cash in and out this week', 'Your daily order count'], 'It’s a snapshot on one date. The P&L and cash flow cover a period.'],
+  ['retained', 'statements', 'Profits the kitchen earned and kept show up on the balance sheet as…', ['Retained earnings (equity)', 'Accounts receivable', 'Revenue', 'A liability'], 'Kept profits build up on the owner’s side as retained earnings.'],
+  ['ownerCapital', 'statements', 'The ₹5,00,000 the owner put in to start the kitchen is recorded as…', ['Owner’s capital (equity)', 'Revenue', 'A liability', 'Profit'], 'Money the owner invests is equity, not income.'],
+  ['depreciation', 'statements', 'Your ₹1,50,000 equipment loses ₹3,000 of value every week. Recording that is called…', ['Depreciation', 'Amortisation of goodwill', 'Inflation', 'A write-up'], 'Depreciation spreads an asset’s cost over its life. It’s an expense, but no cash leaves.'],
+  ['inventory', 'statements', 'Dry ingredients still on your shelf at the end of the week appear on the balance sheet as…', ['Inventory (a current asset)', 'An expense', 'A liability', 'Equity'], 'Unused stock is inventory, an asset, but it’s cash you’ve already spent.'],
+  ['waste', 'statements', '₹12,000 of vegetables spoiled and were thrown away. In the books that’s…', ['An expense that reduces profit', 'An asset', 'Revenue', 'A liability'], 'Spoiled stock is written off as an expense. The cash is already gone.'],
+  ['loanNotIncome', 'statements', 'You take a ₹3,00,000 bank loan. What happens to your PROFIT that week?', ['No change: a loan isn’t income', 'Up ₹3,00,000', 'Down ₹3,00,000', 'It doubles'], 'Cash and liabilities both rise by ₹3 lakh. Only the interest will be an expense.'],
+
+  // ── quick maths (the competitive ones) ──
+  ['grossProfit', 'calc', 'Sales this week ₹2,00,000. Food and packaging used ₹80,000. Your gross profit is…', ['₹1,20,000', '₹2,80,000', '₹80,000', '₹2,00,000'], 'Gross profit = sales − cost of goods sold = ₹2,00,000 − ₹80,000.'],
+  ['grossMargin', 'calc', 'Sales ₹2,00,000, gross profit ₹1,20,000. Your gross margin is…', ['60%', '40%', '120%', '6%'], 'Gross margin = gross profit ÷ sales = ₹1,20,000 ÷ ₹2,00,000 = 60%.'],
+  ['contribution', 'calc', 'A ₹350 order: food ₹126, packaging ₹14, ZipEats takes ₹99.50. What’s left from each order?', ['About ₹110', 'About ₹224', 'About ₹350', 'About ₹14'], 'That ₹110 is the contribution per order: what’s left to pay rent and salaries.'],
+  ['breakeven', 'calc', 'Fixed costs are ₹58,000 a week and each order contributes ₹110. About how many orders a week to break even?', ['About 530', 'About 110', 'About 5,800', 'About 58'], 'Break-even = fixed costs ÷ contribution per order = ₹58,000 ÷ ₹110 ≈ 527.'],
+  ['netProfit', 'calc', 'Gross profit ₹1,20,000. Rent, staff and utilities ₹58,000. Ads ₹15,000. Net profit?', ['₹47,000', '₹1,20,000', '₹62,000', '₹1,93,000'], 'Net profit = gross profit − operating expenses = ₹1,20,000 − ₹73,000.'],
+  ['currentRatio', 'calc', 'Current assets ₹4,00,000, current liabilities ₹2,00,000. Your current ratio is…', ['2', '0.5', '₹2,00,000', '200'], 'Current ratio = current assets ÷ current liabilities. Above 1 means you can cover your short-term bills.'],
+  ['runway', 'calc', 'You have ₹3,00,000 cash and lose ₹60,000 of cash every week. How many weeks of runway?', ['5', '3', '6', '18'], 'Runway = cash ÷ weekly cash burn = ₹3,00,000 ÷ ₹60,000.'],
+  ['interest', 'calc', 'A ₹3,00,000 loan at 2.5% a WEEK. What’s the interest expense each week?', ['₹7,500', '₹2,500', '₹75,000', '₹30,000'], '2.5% × ₹3,00,000 = ₹7,500 every week, about 130% a year.'],
+  ['discountRevenue', 'calc', 'A ₹350 dish sold at 30% off. How much revenue do you record per order (before ZipEats’ cut)?', ['₹245', '₹350', '₹105', '₹315'], '₹350 − 30% = ₹245. Discounts reduce revenue; ZipEats then takes 25% of that.'],
+  ['cashVsProfit', 'calc', 'This week: profit ₹40,000, but ZipEats still owes you ₹1,00,000 more than last week. Roughly what happened to your cash?', ['It went DOWN about ₹60,000', 'It went UP ₹40,000', 'It went UP ₹1,40,000', 'No change'], 'Profit ₹40,000 − ₹1,00,000 more stuck in receivables ≈ ₹60,000 less cash.'],
+
+  // ── profit vs cash ──
+  ['accrual', 'cashflow', 'You sold ₹2,00,000 of food this week. ZipEats pays next week. Under accrual accounting, when is the sale recorded?', ['This week', 'Next week, when the cash arrives', 'At the end of the year', 'Never'], 'Revenue is recorded when it’s earned, not when cash arrives. That’s why profit ≠ cash.'],
+  ['profitCash', 'cashflow', 'True or false: a business can show a PROFIT and still run out of CASH.', ['True', 'False'], 'True. Profit counts sales today; cash can arrive weeks later. Growing businesses die in that gap.', true],
+  ['receivableGrows', 'cashflow', 'Your orders double, and ZipEats always pays a week late. What happens to your accounts receivable?', ['It grows', 'It shrinks', 'It stays the same', 'It becomes a liability'], 'More sales waiting to be paid means more money stuck as receivables, and less cash today.'],
+  ['payableHelps', 'cashflow', 'Which helps your CASH this week the most?', ['Paying suppliers 2 weeks later', 'Paying suppliers early for a small discount', 'Buying extra stock now', 'Prepaying 3 months’ rent'], 'Delaying payables keeps cash in your bank longer (as long as suppliers agree).'],
 ];
 
-// Questions tied to this week's event (asked when that event happens)
+// Accounting questions tied to this week's event (asked when it happens)
 const EVENT_Q = {
-  settlement: ['payoutHold', 'cash', 'ZipEats is holding payouts this week. How much will you receive from them?', ['Everything they owe', 'About half', 'Nothing until next week', 'Double, to catch up'], 2, 'Nothing arrives this week. Sales are fine, but cash in is zero while every bill is still due.'],
-  rival: ['rivalCut', 'ops', 'A rival kitchen opened next door. By how much does your organic demand drop, for good?', ['2%', '8%', '25%', '50%'], 1, 'Organic demand drops 8% permanently. Doing nothing means slowly shrinking.'],
-  rentHike: ['rentType', 'words', 'Your rent goes up 15%. What kind of cost just went up?', ['A variable cost', 'A fixed cost', 'A one-off cost', 'An asset'], 1, 'Rent is a fixed cost: it rises whether you sell more or not.'],
-  viral: ['viralLimit', 'ops', 'Your reel went viral: demand +40%. What limits how many orders you can actually serve?', ['Nothing', 'Kitchen capacity and stock', 'ZipEats', 'Your rating'], 1, 'You can only serve as many orders as your cooks and your ingredients allow. The rest are turned away.'],
-  supplierHike: ['hikeEffect', 'margin', 'Ingredient prices rose 10% for 2 weeks. What happens to your margin per order?', ['Goes up', 'Goes down', 'Stays the same', 'ZipEats covers it'], 1, 'Food is your biggest cost per order, so your margin shrinks unless you raise prices.'],
+  settlement: ['payoutHold', 'cashflow', 'ZipEats is holding this week’s payout. On your balance sheet, that money stays as…', ['Accounts receivable', 'Cash', 'Lost revenue', 'Accounts payable'], 'It’s still owed to you. Your sales count, but your bank doesn’t see the cash yet.'],
+  rival: ['rivalFixed', 'calc', 'A rival opens and your orders fall, but rent stays the same. Your fixed cost PER ORDER…', ['Goes up', 'Goes down', 'Stays the same', 'Disappears'], 'The same rent spread over fewer orders means a higher fixed cost per order.'],
+  rentHike: ['rentLine', 'statements', 'Rent goes up 15%. Which part of the profit & loss statement rises?', ['Operating expenses (overheads)', 'Cost of goods sold', 'Revenue', 'Retained earnings'], 'Rent is an operating expense, not part of the cost of the food itself.'],
+  viral: ['viralCosts', 'terms', 'Your reel goes viral and orders jump 40%. Which costs jump with them?', ['Variable costs: food, packaging, commission', 'Fixed costs: rent and salaries', 'Equipment', 'Owner’s capital'], 'Variable costs move with orders. Rent and salaries don’t.'],
+  supplierHike: ['hikeMargin', 'calc', 'Ingredient prices rise 10% and your menu price stays the same. Your gross margin…', ['Falls', 'Rises', 'Stays the same', 'Doubles'], 'Higher COGS on the same price leaves less gross profit per order.'],
+  refund: ['refundRevenue', 'statements', 'ZipEats refunds 8% of orders for cold food. Refunds reduce your…', ['Revenue', 'Equipment', 'Owner’s capital', 'Liabilities'], 'Refunds come straight off revenue. And you’ve still paid for the food.'],
+  hygiene: ['fineExpense', 'statements', 'A ₹25,000 hygiene fine is recorded as…', ['An expense that reduces profit', 'An asset', 'Revenue', 'Owner’s capital'], 'Fines are expenses. They lower profit and cash at the same time.'],
+  monsoon: ['lostSales', 'terms', 'Riders are scarce and you turn customers away. Those lost sales are recorded as…', ['Nothing: they never happened', 'Accounts receivable', 'Revenue', 'A liability'], 'The books only record what happened. Missed sales never show up, which is why capacity matters.'],
 };
 
-// Questions about what the room did last week (from week 2)
-function liveQuestions(room) {
-  const out = [];
-  if (!room) return out;
-  if (room.discountCounts) {
-    const labels = { none: 'No discount', d10: '10% off', d30: '30% off' };
-    const keys = ['none', 'd10', 'd30'];
-    const top = keys.slice().sort((a, b) => room.discountCounts[b] - room.discountCounts[a])[0];
-    out.push(['roomDiscount', 'room', 'Last week, what did MOST kitchens choose for discount?', keys.map((k) => labels[k]), keys.indexOf(top),
-      `${Math.round((room.discountCounts[top] / Math.max(1, room.kitchens)) * 100)}% chose “${labels[top]}”.`]);
-  }
-  if (room.topCash && room.topCash.length >= 3) {
-    const opts = room.topCash.slice(0, 4);
-    const order = opts.map((o, i) => i).sort((a, b) => (a * 7 + room.week) % 5 - (b * 7 + room.week) % 5);
-    const shuffled = order.map((i) => opts[i]);
-    out.push(['roomLeader', 'room', 'Which kitchen had the MOST cash at the end of last week?', shuffled.map((o) => o.nick), shuffled.findIndex((o) => o === opts[0]),
-      `${opts[0].nick} led with ${inr(opts[0].cash)} in the bank.`]);
-  }
-  if (room.cashDownShare != null) {
-    const p = room.cashDownShare;
-    const idx = p >= 0.75 ? 0 : p >= 0.4 ? 1 : 2;
-    out.push(['roomCashDown', 'room', 'Last week, how many kitchens saw their cash go DOWN?', ['Most of them', 'About half', 'Only a few'], idx,
-      `${Math.round(p * 100)}% of kitchens had less cash at the end of the week, even though most sold more.`]);
-  }
-  return out;
+// Turn a stored question into a playable one, shuffling the answers per game.
+function build(q, rng) {
+  const [id, cat, text, options, why, noShuffle] = q;
+  const order = options.map((_, i) => i);
+  if (!noShuffle) for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  return { id, cat, text, options: order.map((i) => options[i]), correct: order.indexOf(0), why };
 }
 
-// Pick this week's question: week 1 is always "when does ZipEats pay?";
-// an event week asks about that event; otherwise a mix of rule questions and
-// questions about last week's room, never repeating and never the same
-// category twice in a row.
-function pickQuiz({ week, seed, event, used, lastCat, room }) {
+// Week 1 is always the receivable question; an event week asks about that
+// event; otherwise rotate topics, never repeating a question or a topic twice
+// in a row.
+function pickQuiz({ week, seed, event, used, lastCat }) {
   const rng = makeRng(seed * 131 + week * 977);
-  const make = (q) => ({ id: q[0], cat: q[1], text: q[2], options: q[3], correct: q[4], why: q[5] });
-  if (week === 1 && !used.includes('payday')) return make(STATIC[0]);
+  if (week === 1 && !used.includes('payday')) return build(STATIC[0], rng);
   const ev = event && EVENT_Q[event.id];
-  if (ev && !used.includes(ev[0])) return make(ev);
-  const live = liveQuestions(room).filter((q) => !used.includes(q[0]));
-  const stat = STATIC.filter((q) => !used.includes(q[0]));
-  // about every other week, ask about the room (it's the most fun)
-  const preferLive = live.length && (week % 2 === 0 || rng() < 0.3);
-  let pool = preferLive ? live : stat;
+  if (ev && !used.includes(ev[0])) return build(ev, rng);
+  const pool = STATIC.filter((q) => !used.includes(q[0]));
   let fresh = pool.filter((q) => q[1] !== lastCat);
-  if (!fresh.length) fresh = pool.length ? pool : stat.length ? stat : STATIC;
-  return make(fresh[Math.floor(rng() * fresh.length)]);
+  if (!fresh.length) fresh = pool.length ? pool : STATIC;
+  return build(fresh[Math.floor(rng() * fresh.length)], rng);
 }
 
-module.exports = { pickQuiz, STATIC, EVENT_Q, liveQuestions };
+module.exports = { pickQuiz, STATIC, EVENT_Q, build };

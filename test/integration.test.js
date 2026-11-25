@@ -104,7 +104,7 @@ test(`${PHONES} phones, own kitchens, early-ending timers, crash recovery`, { ti
   for (let guard = 0; guard < 400 && host.phase() !== 'ending'; guard++) {
     const v = host.view;
     const { phase, week } = v;
-    if (phase === 'brief' || phase === 'answer') host.cmd('next');
+    if (phase === 'intro' || phase === 'brief' || phase === 'answer') host.cmd('next');
     else if (phase === 'question' || phase === 'decide') {
       const t0 = Date.now();
       await waitFor(() => host.view && (host.view.phase !== phase || host.view.week !== week), 20000, `${phase} ends by itself (week ${week})`);

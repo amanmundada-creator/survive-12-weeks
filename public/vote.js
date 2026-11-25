@@ -81,7 +81,7 @@
     const k = [pub.phase, pub.week, ans, JSON.stringify(choices), me.closed, pub.phase === 'setup' ? me.nick + localStorage.getItem('seenRole') : '', ['answer', 'results', 'ending'].includes(pub.phase) ? JSON.stringify(me.lastQuiz) + me.rank + me.score : '', pub.decisions.join()].join('|');
     if (k === key) return;
     key = k;
-    const fn = { setup: viewLobby, brief: viewBrief, question: viewQuestion, answer: viewAnswer, decide: viewDecide, results: viewResults, ending: viewEnding }[pub.phase];
+    const fn = { setup: viewLobby, intro: viewIntro, brief: viewBrief, question: viewQuestion, answer: viewAnswer, decide: viewDecide, results: viewResults, ending: viewEnding }[pub.phase];
     screen.className = 'screen';
     if (fn) fn(choices, ans);
     if (pub.phase !== 'setup' && !localStorage.getItem('seenRole')) {
@@ -114,7 +114,7 @@
       screen.innerHTML = `<div class="h">Your kitchen is open! 🎉</div>${roleCard(true)}${nickEditor()}<button class="big-btn" id="gotit">Got it</button>`;
       $('#gotit').onclick = () => { localStorage.setItem('seenRole', '1'); key = ''; render(); };
     } else {
-      screen.innerHTML = `<div class="card wait"><div class="wait-e">👩‍🍳</div><div class="wait-t">You’re in! Waiting for the host…</div><div class="wait-s">Answer fast and right to earn cash. Wrong answers cost ₹10,000.</div></div>${nickEditor()}${settingsRow()}`;
+      screen.innerHTML = `<div class="card wait"><div class="wait-e">👩‍🍳</div><div class="wait-t">You’re in! Waiting for the host…</div><div class="wait-s">While you wait, learn how your kitchen works:</div></div>${pub.facts ? briefHtml() : ''}${nickEditor()}${settingsRow()}`;
       bindSettings();
     }
     bindNick();
@@ -123,6 +123,14 @@
   function bindSettings() {
     const b = $('#vib');
     if (b) b.onclick = () => { vibrateOn = !vibrateOn; localStorage.setItem('vibrate', vibrateOn ? 'on' : 'off'); b.textContent = vibrateOn ? 'On' : 'Off'; };
+  }
+
+  // ── the business briefing ──
+  function briefHtml() {
+    return `<div class="brief-cards">${window.U.briefCards(pub.facts).map((c) => `<div class="card bc"><div class="bc-e">${c.e}</div><div><b>${c.t}</b><p>${c.b}</p></div></div>`).join('')}</div>`;
+  }
+  function viewIntro() {
+    screen.innerHTML = `<div class="h">How your kitchen works</div><p class="sub">Read this now. The ${pub.minutes}-minute clock starts when the host is ready.</p>${briefHtml()}`;
   }
 
   // ── brief ──

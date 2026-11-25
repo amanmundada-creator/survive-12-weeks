@@ -46,5 +46,18 @@
     bonus: { title: 'Boardroom', take: 'Yes', skip: 'No' },
   };
 
-  window.U = { inr, inrShort, num, esc, $, sleep, countTo, reducedMotion, DECISION_LABELS };
+  // The pre-game business briefing (same on the projector and every phone)
+  function briefCards(f) {
+    if (!f) return [];
+    return [
+      { e: '🏪', t: 'Your kitchen', b: `You start with <b>${inr(f.startCash)}</b> in the bank and ${f.cooks} cooks who can make <b>${num(f.cooks * f.perCook)} orders a week</b>. Every dish sells for <b>₹${f.menuPrice}</b>.` },
+      { e: '🧅', t: 'Every order costs you', b: `Food <b>₹${f.food}</b> + packaging <b>₹${f.packaging}</b>, paid <b>up front</b>. Unsold food mostly spoils (${f.wastePct}% is thrown away).` },
+      { e: '📱', t: 'ZipEats, the delivery app', b: `Keeps <b>${f.commissionPct}% + ₹${f.platformFee}</b> of every order and pays you <b>a week LATE</b>. Until then that money is a <b>receivable</b>, not cash.` },
+      { e: '🏢', t: 'Fixed costs, every week', b: `Rent ₹${num(f.rent)} + staff ₹${num(f.staff)} + utilities ₹${num(f.utilities)} = <b>${inr(f.fixed)} a week</b>, even if nobody orders.` },
+      { e: '💰', t: 'What you keep per order', b: `<b>₹${f.keepFull}</b> at full price · <b>₹${f.keep10}</b> at 10% off · <b>₹${f.keep30}</b> at 30% off. That has to pay the fixed costs.` },
+      { e: '🏆', t: 'How to win', b: `Right answers <b>+₹10k–20k</b> (faster = more), wrong <b>−₹10k</b>. Each week you choose discount, ads, stock and staff. <b>Most cash when the clock ends wins</b> (loans don’t count). Run out of cash: one rescue loan at ${f.rescueRate}%/week, then you close.` },
+    ];
+  }
+
+  window.U = { inr, inrShort, num, esc, $, sleep, countTo, reducedMotion, DECISION_LABELS, briefCards };
 })();

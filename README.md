@@ -123,6 +123,8 @@ To flip through all ten ending screens without playing, open the **ending-previe
 
 ## 5. How a week works
 
+**Before week 1: the business briefing.** When you press Start, the projector and every phone show six cards: your kitchen (₹5 lakh, 2 cooks, ₹350 dishes), what each order costs (₹126 food + ₹14 packaging), how ZipEats works (25% + ₹12, pays a week late, which is a receivable), fixed costs (₹58,000 a week), what you keep per order (₹110 / ₹84 / ₹32), and how to win. Phones also show these cards while people wait in the lobby. **The game clock only starts when you press Space after the briefing.**
+
 1. **Headline + advisors (10 seconds, Space skips).** A news card, which is sometimes an event that changes the numbers for everyone. Three advisors give biased advice: 🚀 Rocket Rhea (growth), 🍳 Steady Sam (operations), 💰 Penny Priya (finance).
 2. **Quick question (20 seconds).** Two to four coloured answers, Kahoot-style. One tap, no changing. **It ends the moment everyone has answered.**
 3. **The answer (7 seconds).** How the room answered, the right answer, and a one-line 💡 *why*. That line is the teaching moment. Phones show "✓ Correct! +₹16,500" or "✗ Wrong · −₹10,000".
@@ -131,8 +133,15 @@ To flip through all ten ending screens without playing, open the **ending-previe
 
 When the game clock hits zero, the week in progress finishes, and then the winner is revealed. The game also ends after 12 weeks, or if every kitchen has closed.
 
-### The questions
-There are 18 rule questions (when ZipEats pays, fixed vs variable costs, margin at 30% off, receivables, what a balance sheet is, loan interest, and more). There are 5 event questions, asked in the week that event happens: payout delay, rival opens, rent hike, viral reel, supplier price hike. And there are 3 questions about the room itself, from week 2: "What did most kitchens choose for discount last week?", "Which kitchen had the most cash?", "How many kitchens saw their cash go down?". **No question is ever asked twice in a game**, and questions rotate between topics. Week 1 is always "When does ZipEats pay you?", because that's the key idea.
+### The questions (all accounting)
+Every question is an **accounting question told through the kitchen's story**. Week 1 is always: *"ZipEats will pay you ₹2,40,000 next Tuesday… until it lands in your bank, that money is called…"* → **Accounts receivable**.
+
+- **Words accountants use:** receivable vs payable, prepaid expense, unearned revenue, accrued expense, COGS, fixed vs variable, capital expenditure, working capital, liquidity, cash vs accrual basis, double entry.
+- **The statements:** the accounting equation, P&L vs balance sheet vs cash flow, retained earnings, owner's capital, depreciation, inventory, write-offs, why a loan isn't income.
+- **Quick maths (the competitive ones):** gross profit, gross margin, contribution per order, break-even orders, net profit, current ratio, cash runway, loan interest, discounted revenue, profit vs cash.
+- **Event questions:** in the week an event happens (payout delay, rival, rent hike, viral reel, price hike, refunds, hygiene fine, monsoon), the question is about that event's accounting.
+
+That's 39 rule questions plus 8 event questions. **None is asked twice in a game**, topics rotate, and **the answer order is shuffled every game**, so nobody can memorise "it's always the blue one".
 
 ### Scoring = cash
 - Right answer: **+₹10,000 to +₹20,000** depending on speed, plus **+₹2,000 for each answer in a row** you've got right (up to +₹10,000).

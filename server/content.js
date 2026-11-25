@@ -114,6 +114,8 @@ function presenterNote(phase, ctx) {
   switch (phase) {
     case 'setup':
       return 'Welcome everyone. "Today every one of you runs your own cloud kitchen with ₹5 lakh. Scan the code. The richest kitchen when the clock hits zero wins."';
+    case 'intro':
+      return 'Walk through the six cards in 60 seconds. Stress two: ZipEats pays a WEEK LATE, and rent + staff cost ₹58,000 every week no matter what. Press Space to start the clock.';
     case 'lobby':
       return 'While people join: "Right answers put cash in your kitchen. Wrong answers take it out. Answer fast for more."';
     case 'brief':

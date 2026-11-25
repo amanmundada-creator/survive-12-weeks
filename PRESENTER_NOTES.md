@@ -18,7 +18,15 @@ Read a few funny kitchen names out loud as they pop up.
 >
 > There's a clock at the top. When it hits zero, **the kitchen with the most cash wins**, and we'll open up the winner's balance sheet on screen to see *how* they did it."
 
-Press **Space**.
+Press **Space**. The **briefing** comes up on the projector and every phone. The clock is still paused.
+
+## The briefing (about 60 seconds)
+
+Walk through the six cards. Stress two of them:
+> "ZipEats pays you **a week late**. Until then it's a *receivable*, money that's yours but isn't in the bank."
+> "Rent and staff cost **₹58,000 every week**, even if nobody orders."
+
+Then: "Every question today is an accounting question. Ready?" Press **Space** to start the clock.
 
 ---
 
