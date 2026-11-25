@@ -56,13 +56,18 @@ let tunnelUrl = null;
 const PUBLIC_URL = process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || null;
 const joinUrl = () => (PUBLIC_URL || tunnelUrl || `http://${lanIp()}:${PORT}`).replace(/\/$/, '');
 const hostBase = () => (PUBLIC_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
-let qrCache = { url: null, svg: null };
-async function joinQr() {
-  const url = joinUrl();
-  if (qrCache.url !== url) {
-    qrCache = { url, svg: await QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#2a1508', light: '#fffaf0' } }) };
-  }
-  return qrCache.svg;
+const qrCache = new Map();
+async function qrFor(url) {
+  if (!qrCache.has(url)) qrCache.set(url, await QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#2a1508', light: '#fffaf0' } }));
+  return qrCache.get(url);
+}
+const isLocal = (host) => /^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(host || '');
+// The address the audience should use, as seen from one host screen: if you
+// opened the host page at a public address, the QR uses that same address.
+function joinUrlFor(ws) {
+  if (process.env.BASE_URL || tunnelUrl) return joinUrl();
+  if (ws && ws.origin && !isLocal(ws.originHost)) return ws.origin;
+  return joinUrl();
 }
 
 // ── game + broadcasting ──
@@ -78,9 +83,12 @@ function scheduleBroadcast({ light }) {
 async function broadcast() {
   pending = null;
   lastFull = Date.now();
-  const svg = await joinQr();
-  const hostMsg = JSON.stringify({ t: 'state', view: game.hostView(), join: { url: joinUrl(), qr: svg } });
-  for (const ws of sockets.hosts) if (ws.readyState === 1) ws.send(hostMsg);
+  const view = game.hostView();
+  for (const ws of sockets.hosts) {
+    if (ws.readyState !== 1) continue;
+    const url = joinUrlFor(ws);
+    ws.send(JSON.stringify({ t: 'state', view, join: { url, qr: await qrFor(url) } }));
+  }
   const pub = JSON.stringify(game.publicView());
   for (const [ws, id] of sockets.phones) {
     if (ws.readyState !== 1) continue;
@@ -106,13 +114,17 @@ app.get('/vote', page('vote.html'));
 app.get('/host', hostOnly, page('host.html'));
 app.get('/ending-preview', hostOnly, page('ending-preview.html'));
 app.get('/api/endings', hostOnly, (req, res) => res.json(previewEndings(Number(req.query.weeks) || 12)));
-app.get('/healthz', (req, res) => res.json({ ok: true, phase: game.s.phase, players: Object.keys(game.s.players).length }));
+app.get('/healthz', (req, res) => res.json({ ok: true, phase: game.s.phase, players: Object.keys(game.s.players).length, configuredJoinUrl: joinUrl() }));
 app.use(express.static(pub, { maxAge: 0 }));
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 4096 });
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
+  const fwdHost = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  const fwdProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim() || (req.socket.encrypted ? 'https' : 'http');
+  ws.originHost = fwdHost;
+  ws.origin = fwdHost ? `${fwdProto}://${fwdHost}` : null;
   ws.isAlive = true;
   ws.on('pong', () => (ws.isAlive = true));
   ws.on('message', (raw) => {
