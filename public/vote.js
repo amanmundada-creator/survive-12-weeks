@@ -12,6 +12,7 @@
   let vibrateOn = localStorage.getItem('vibrate') !== 'off';
   let pub = null, me = null, recvAt = 0, key = '', ws = null, buzzed = null, editingNick = false;
   let localAnswer = null;
+  let removed = false;
   const localChoices = {};
 
   const HINTS = {
@@ -26,13 +27,21 @@
     ws.onopen = () => { $('#conn').classList.remove('on'); ws.send(JSON.stringify({ t: 'hello', deviceId })); };
     ws.onmessage = (e) => {
       const m = JSON.parse(e.data);
+      if (m.t === 'kicked') {
+        removed = true;
+        $('#conn').classList.remove('on');
+        $('#clock').classList.add('off');
+        screen.innerHTML = '<div class="card locked"><div class="locked-e">🚪</div><div class="locked-t">You were removed by the host</div><div class="locked-s">You can join again when the host starts a new game.</div></div>';
+        return;
+      }
       if (m.t !== 'state') return;
       const changed = !pub || pub.phase !== m.pub.phase || pub.week !== m.pub.week;
+      removed = false;
       pub = m.pub; me = m.me; recvAt = Date.now();
       if (changed) { localAnswer = null; for (const k in localChoices) delete localChoices[k]; buzzed = null; }
       render();
     };
-    ws.onclose = () => { $('#conn').classList.add('on'); setTimeout(connect, 1000 + Math.random() * 1500); };
+    ws.onclose = () => { if (removed) { setTimeout(connect, 15000); return; } $('#conn').classList.add('on'); setTimeout(connect, 1000 + Math.random() * 1500); };
   }
   const send = (o) => ws && ws.readyState === 1 && ws.send(JSON.stringify(o));
   const buzz = (ms) => { if (vibrateOn && navigator.vibrate) navigator.vibrate(ms); };

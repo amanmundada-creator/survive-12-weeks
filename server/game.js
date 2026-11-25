@@ -71,6 +71,7 @@ class Game {
       roomHistory: [],
       answerStats: null,
       ending: null,
+      kicked: {},
       phaseEndsAt: null,
       pausedRemaining: null,
       clockEndsAt: null,
@@ -254,6 +255,7 @@ class Game {
   // ── players ──
   join(deviceId, nick) {
     const s = this.s;
+    if (s.kicked && s.kicked[deviceId]) return null; // removed by the host for this game
     let p = s.players[deviceId];
     if (!p) {
       const counts = { growth: 0, ops: 0, finance: 0 };
@@ -279,6 +281,23 @@ class Game {
     const clean = String(nick || '').replace(/[<>]/g, '').trim().slice(0, 24);
     if (clean) p.nick = clean;
     this.changed(false, true);
+  }
+
+  // Host removes a player: their kitchen leaves the game and the phone can't
+  // rejoin until the host starts a new game.
+  kick(id) {
+    const s = this.s;
+    if (!s.players[id]) return false;
+    delete s.players[id];
+    delete s.answers[id];
+    delete s.choices[id];
+    s.kicked = s.kicked || {};
+    s.kicked[id] = true;
+    this.changed(true);
+    // the room may now be complete
+    if (s.phase === 'question') this.maybeEndEarly('question', () => this.activePlayers().every((x) => s.answers[x.id]));
+    if (s.phase === 'decide') this.maybeEndEarly('decide', () => this.decidersDone());
+    return true;
   }
 
   disconnect(id) { const p = this.s.players[id]; if (p) { p.connected = false; this.changed(false, true); } }
@@ -565,7 +584,8 @@ class Game {
       answerStats: s.answerStats,
       leaderboard: this.leaderboard(5), podium: this.leaderboard(3),
       room: s.room, roomHistory: s.roomHistory, startCash: B.START_CASH,
-      nicks: s.phase === 'setup' ? Object.values(s.players).slice(-36).map((p) => p.nick) : null,
+      nicks: s.phase === 'setup' ? Object.values(s.players).slice(-36).map((p) => ({ id: p.id, nick: p.nick })) : null,
+      players: Object.values(s.players).map((p) => ({ id: p.id, nick: p.nick, connected: !!p.connected, score: this.cashScore(p), closed: !!(p.sim && p.sim.bankrupt) })).sort((a, b) => a.nick.localeCompare(b.nick)),
       note: presenterNote(s.phase === 'setup' && Object.keys(s.players).length ? 'lobby' : s.phase, { week: s.week, quiz: s.quiz, room: s.room }),
     };
     if (s.phase === 'ending' && s.ending) view.ending = s.ending;

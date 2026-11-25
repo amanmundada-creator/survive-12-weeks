@@ -151,9 +151,9 @@ wss.on('connection', (ws, req) => {
     if (m.t === 'hello') {
       const id = String(m.deviceId || '').slice(0, 64);
       if (!/^[a-zA-Z0-9_-]{6,64}$/.test(id)) return;
+      if (!game.join(id, m.nick)) { ws.send(JSON.stringify({ t: 'kicked' })); return ws.close(); }
       ws.deviceId = id;
       sockets.phones.set(ws, id);
-      game.join(id, m.nick);
       return scheduleBroadcast({ light: false });
     }
     const id = ws.deviceId;
@@ -190,6 +190,17 @@ function hostCommand(m) {
     case 'replay': return game.reset(true);
     case 'autoplay': return game.setAutoplay(m.on);
     case 'kick-all': return game.reset(false);
+    case 'kick': {
+      const id = String(m.id || '');
+      if (!game.kick(id)) return undefined;
+      for (const [ws, devId] of sockets.phones) {
+        if (devId !== id) continue;
+        try { ws.send(JSON.stringify({ t: 'kicked' })); } catch {}
+        sockets.phones.delete(ws);
+        ws.close();
+      }
+      return undefined;
+    }
     default: return undefined;
   }
 }

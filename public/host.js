@@ -37,7 +37,8 @@
 
   // ── keyboard ──
   document.addEventListener('keydown', (e) => {
-    if (e.target.tagName === 'INPUT') { if (e.key === 'Enter') e.target.blur(); return; }
+    if (e.target.tagName === 'INPUT') { if (e.key === 'Enter') e.target.blur(); if (e.key === 'Escape' && e.target.id === 'pp-search') togglePlayers(false); return; }
+    if (e.key === 'Escape' && $('#players-panel').classList.contains('on')) return togglePlayers(false);
     unlockSound();
     if ($('#confirm').classList.contains('on')) {
       if (e.key === 'Escape') $('#confirm').classList.remove('on');
@@ -57,6 +58,7 @@
     else if (k === 'm') { Sound.setMuted(!Sound.isMuted()); toast(Sound.isMuted() ? 'Sound off' : 'Sound on'); localStorage.setItem('muted', Sound.isMuted() ? '1' : ''); }
     else if (k === 'f') { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); }
     else if (k === 'n') { notesOn = !notesOn; renderNotes(); }
+    else if (k === 'k') togglePlayers();
     else if (k === 'a') { cmd('autoplay', { on: !(view && view.autoplay) }); toast(view && view.autoplay ? 'Auto-play off' : 'Auto-play on'); }
   });
   $('#confirm .yes').onclick = doRestart;
@@ -65,6 +67,43 @@
   document.addEventListener('click', unlockSound);
   function unlockSound() { if (!soundUnlocked) { soundUnlocked = true; Sound.unlock(); $('#sound-hint').textContent = ''; } }
   Sound.setMuted(localStorage.getItem('muted') === '1');
+
+  // ── players panel: remove people ──
+  let pendingKick = null;
+  function togglePlayers(force) {
+    const p = $('#players-panel');
+    const on = force == null ? !p.classList.contains('on') : force;
+    p.classList.toggle('on', on);
+    if (on) { renderPlayers(); setTimeout(() => $('#pp-search').focus(), 30); }
+  }
+  function kick(id, nick) {
+    if (pendingKick !== id) { // second click confirms
+      pendingKick = id;
+      renderPlayers();
+      clearTimeout(kick.t);
+      kick.t = setTimeout(() => { pendingKick = null; renderPlayers(); }, 4000);
+      return;
+    }
+    pendingKick = null;
+    cmd('kick', { id });
+    toast(`Removed ${nick}`);
+  }
+  function renderPlayers() {
+    const list = $('#pp-list');
+    if (!view || !$('#players-panel').classList.contains('on')) return;
+    const q = $('#pp-search').value.trim().toLowerCase();
+    const ps = (view.players || []).filter((p) => !q || p.nick.toLowerCase().includes(q));
+    const key = q + '|' + pendingKick + '|' + view.phase + '|' + ps.map((p) => p.id + p.nick + p.connected + p.closed + (view.phase === 'setup' ? '' : p.score)).join(',');
+    if (list.dataset.k === key) return;
+    list.dataset.k = key;
+    list.innerHTML = ps.length ? ps.map((p) => `<div class="pp-row"><span class="pp-dot ${p.connected ? 'on' : ''}" title="${p.connected ? 'online' : 'offline'}"></span><span class="pp-nick">${esc(p.nick)}${p.closed ? ' <small>closed</small>' : ''}</span><span class="pp-score">${view.phase === 'setup' ? '' : inrShort(p.score)}</span><button class="pp-kick ${pendingKick === p.id ? 'sure' : ''}" data-id="${esc(p.id)}" data-nick="${esc(p.nick)}">${pendingKick === p.id ? 'Click again to remove' : 'Remove'}</button></div>`).join('') : '<p class="pp-sub">Nobody matches.</p>';
+    list.querySelectorAll('.pp-kick').forEach((b) => (b.onclick = () => kick(b.dataset.id, b.dataset.nick)));
+    $('#players-btn').textContent = `👥 Players (${(view.players || []).length})`;
+  }
+  $('#players-btn').onclick = () => togglePlayers();
+  $('#pp-close').onclick = () => togglePlayers(false);
+  $('#pp-search').oninput = () => renderPlayers();
+  $('#players-panel').onclick = (e) => { if (e.target.id === 'players-panel') togglePlayers(false); };
 
   // ── clocks ──
   const phaseLeft = () => (!view || view.remainingMs == null ? null : view.paused ? view.remainingMs : Math.max(0, view.remainingMs - (Date.now() - recvAt)));
@@ -140,6 +179,8 @@
     $('#pause').classList.toggle('on', !!view.paused);
     if (!soundUnlocked && view.sound) $('#sound-hint').textContent = '🔈 Click or press any key once to enable sound';
     renderMain(false);
+    renderPlayers();
+    $('#players-btn').textContent = `👥 Players (${(view.players || []).length})`;
   }
 
   function onPhaseChange(to) {
@@ -178,7 +219,12 @@
       const el = $('#nicks');
       if (el && v.nicks) {
         const want = v.nicks.slice(-24);
-        if (el.dataset.k !== want.join('|')) { el.dataset.k = want.join('|'); el.innerHTML = want.map((x) => `<span>${esc(x)}</span>`).join(''); }
+        const k = want.map((x) => x.id + x.nick).join('|');
+        if (el.dataset.k !== k) {
+          el.dataset.k = k;
+          el.innerHTML = want.map((x) => `<span>${esc(x.nick)}<button class="chip-x" data-id="${esc(x.id)}" data-nick="${esc(x.nick)}" title="Remove ${esc(x.nick)}">×</button></span>`).join('');
+          el.querySelectorAll('.chip-x').forEach((b) => (b.onclick = () => { cmd('kick', { id: b.dataset.id }); toast(`Removed ${b.dataset.nick}`); }));
+        }
       }
     }
   }

@@ -377,3 +377,24 @@ h1, h2, h3 { margin: 0; }
 .ed-row { display: grid; grid-template-columns: 240px 1fr 50px; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; }
 .ed-row i { display: block; height: 18px; background: var(--orange); border-radius: 999px; min-width: 6px; }
 .ed-row b { text-align: right; }
+
+/* ── players panel ── */
+#players-btn { position: absolute; left: 30px; bottom: 26px; z-index: 25; background: var(--paper); border: 2px solid var(--line); border-radius: 14px; padding: 10px 18px; font-size: 20px; font-weight: 800; color: var(--ink); }
+#players-panel { position: absolute; inset: 0; background: rgba(42, 21, 8, 0.55); display: none; place-items: center; z-index: 55; }
+#players-panel.on { display: grid; }
+.pp-box { background: var(--paper); border-radius: 24px; padding: 28px 32px; width: 1000px; max-height: 860px; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.pp-head { display: flex; align-items: center; gap: 18px; }
+.pp-head h2 { font-size: 40px; font-weight: 900; }
+.pp-head input { flex: 1; font: inherit; font-size: 22px; font-weight: 700; padding: 10px 16px; border-radius: 12px; border: 2px solid var(--line); background: var(--cream); color: var(--ink); }
+#pp-close { border: none; background: var(--cream-2); border-radius: 12px; width: 52px; height: 52px; font-size: 24px; font-weight: 900; }
+.pp-sub { font-size: 19px; color: var(--ink-2); font-weight: 600; margin: 10px 0 14px; }
+#pp-list { overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; align-content: start; }
+.pp-row { display: grid; grid-template-columns: 16px 1fr auto auto; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--cream); font-size: 21px; font-weight: 750; }
+.pp-dot { width: 12px; height: 12px; border-radius: 50%; background: #c9b79f; } .pp-dot.on { background: var(--green); }
+.pp-nick { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .pp-nick small { color: var(--red); font-size: 15px; }
+.pp-score { color: var(--cash); font-variant-numeric: tabular-nums; font-size: 18px; }
+.pp-kick { border: 2px solid var(--red); color: var(--red); background: transparent; border-radius: 10px; padding: 6px 12px; font-size: 16px; font-weight: 800; }
+.pp-kick.sure { background: var(--red); color: #fff; }
+.nick-cloud span { display: inline-flex; align-items: center; gap: 6px; }
+.chip-x { border: none; background: transparent; color: var(--muted); font-size: 18px; font-weight: 900; line-height: 1; padding: 0 2px; cursor: pointer; }
+.chip-x:hover { color: var(--red); }
